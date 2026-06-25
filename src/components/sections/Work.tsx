@@ -4,6 +4,7 @@ import React from "react";
 import { Card } from "@/components/core/Card";
 import { Tag } from "@/components/core/Tag";
 import { Button } from "@/components/core/Button";
+import { motion, useReducedMotion } from "framer-motion";
 
 const PROJECTS = [
   {
@@ -41,6 +42,8 @@ const PROJECTS = [
 ];
 
 export function Work() {
+  const reduced = useReducedMotion();
+
   return (
     <section id="work" style={{ minHeight: "100vh", background: "var(--bg-base)", paddingTop: "64px" }}>
       <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "72px 48px" }}>
@@ -52,13 +55,20 @@ export function Work() {
           }}>
             // selected work
           </div>
-          <h2 style={{
-            fontFamily: "var(--font-display)", fontSize: "48px", fontWeight: 700,
-            letterSpacing: "-0.03em", color: "var(--text-display)",
-            margin: "0 0 16px",
-          }}>
-            Built and shipped.
-          </h2>
+          <motion.div
+            initial={{ opacity: 0, y: reduced ? 0 : 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <h2 style={{
+              fontFamily: "var(--font-display)", fontSize: "48px", fontWeight: 700,
+              letterSpacing: "-0.03em", color: "var(--text-display)",
+              margin: "0 0 16px",
+            }}>
+              Built and shipped.
+            </h2>
+          </motion.div>
           <p style={{
             fontFamily: "var(--font-body)", fontSize: "16px",
             color: "var(--text-body)", maxWidth: "480px", margin: 0, lineHeight: 1.65,
@@ -72,33 +82,42 @@ export function Work() {
           gridTemplateColumns: "repeat(auto-fill, minmax(460px, 1fr))",
           gap: "20px",
         }}>
-          {PROJECTS.map(p => (
-            <Card key={p.id} accent={p.accent} onClick={() => {}}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "16px" }}>
-                <h3 style={{
-                  fontFamily: "var(--font-display)", fontSize: "22px", fontWeight: 600,
-                  color: "var(--text-display)", margin: 0, letterSpacing: "-0.01em",
+          {PROJECTS.map((p, index) => (
+            <motion.div
+              key={p.id}
+              initial={{ opacity: 0, y: reduced ? 0 : 32 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              whileHover={{ y: reduced ? 0 : -4 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.6, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <Card accent={p.accent} onClick={() => {}}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "16px" }}>
+                  <h3 style={{
+                    fontFamily: "var(--font-display)", fontSize: "22px", fontWeight: 600,
+                    color: "var(--text-display)", margin: 0, letterSpacing: "-0.01em",
+                  }}>
+                    {p.name}
+                  </h3>
+                  <span style={{
+                    fontFamily: "var(--font-mono)", fontSize: "11px",
+                    color: "var(--text-muted)", textTransform: "uppercase",
+                    letterSpacing: ".06em", flexShrink: 0, marginLeft: "16px", paddingTop: "4px",
+                  }}>
+                    {p.year}
+                  </span>
+                </div>
+                <p style={{
+                  fontFamily: "var(--font-body)", fontSize: "14px", lineHeight: 1.65,
+                  color: "var(--text-body)", margin: "0 0 20px",
                 }}>
-                  {p.name}
-                </h3>
-                <span style={{
-                  fontFamily: "var(--font-mono)", fontSize: "11px",
-                  color: "var(--text-muted)", textTransform: "uppercase",
-                  letterSpacing: ".06em", flexShrink: 0, marginLeft: "16px", paddingTop: "4px",
-                }}>
-                  {p.year}
-                </span>
-              </div>
-              <p style={{
-                fontFamily: "var(--font-body)", fontSize: "14px", lineHeight: 1.65,
-                color: "var(--text-body)", margin: "0 0 20px",
-              }}>
-                {p.desc}
-              </p>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-                {p.tags.map(t => <Tag key={t} active={p.accent}>{t}</Tag>)}
-              </div>
-            </Card>
+                  {p.desc}
+                </p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                  {p.tags.map(t => <Tag key={t} active={p.accent}>{t}</Tag>)}
+                </div>
+              </Card>
+            </motion.div>
           ))}
         </div>
 

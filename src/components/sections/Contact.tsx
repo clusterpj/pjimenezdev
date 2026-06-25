@@ -4,34 +4,44 @@ import React from "react";
 import { Tag } from "@/components/core/Tag";
 import { AIStateIndicator, type AIState } from "@/components/ai/AIStateIndicator";
 import { ConciergeSurface, type Message } from "@/components/ai/ConciergeSurface";
+import { streamConcierge } from "@/lib/streamConcierge";
+import { motion, useReducedMotion } from "framer-motion";
 
 const SKILLS = ["AI integrations", "Automations", "Web apps", "Mobile apps", "3D / Motion", "LangChain", "Next.js", "Python", "n8n", "Blender"];
 
-const AUTO_REPLIES = [
-  "That sounds like something Pedro could scope in under a week. What's the timeline looking like?",
-  "Pedro's worked on several similar projects — let me put together a rough outline. Can you share more about the stack you're already using?",
-  "Got it. Availability right now: open for new projects starting July. Want me to set up a 30-minute call?",
-];
-let replyIndex = 0;
-
 export function Contact() {
+  const reduced = useReducedMotion();
   const [aiState, setAiState] = React.useState<AIState>("idle");
   const [msgs, setMsgs] = React.useState<Message[]>([
     { role: "ai", content: "Hola. Tell me what you're building — I'll tell you what Pedro can do for you and whether he's available." },
   ]);
 
-  const handleSend = (text: string) => {
-    setMsgs(m => [...m, { role: "user", content: text }]);
-    setAiState("listening");
-    setTimeout(() => {
-      setAiState("processing");
-      setTimeout(() => {
-        setAiState("responding");
-        setMsgs(m => [...m, { role: "ai", content: AUTO_REPLIES[replyIndex % AUTO_REPLIES.length] }]);
-        replyIndex++;
-        setTimeout(() => setAiState("idle"), 2000);
-      }, 1400);
-    }, 600);
+  const handleSend = async (text: string) => {
+    const userMsg: Message = { role: "user", content: text };
+    const thread = [...msgs, userMsg];
+    setMsgs(thread);
+    setAiState("processing");
+
+    let isFirst = true;
+    try {
+      await streamConcierge(thread, (token) => {
+        if (isFirst) {
+          isFirst = false;
+          setAiState("responding");
+          setMsgs(m => [...m, { role: "ai", content: token }]);
+        } else {
+          setMsgs(m => {
+            const next = [...m];
+            next[next.length - 1] = { role: "ai", content: next[next.length - 1].content + token };
+            return next;
+          });
+        }
+      });
+    } catch {
+      setMsgs(m => [...m, { role: "ai", content: "Connection hiccup — try again." }]);
+    } finally {
+      setAiState("idle");
+    }
   };
 
   return (
@@ -53,7 +63,12 @@ export function Contact() {
         alignItems: "start",
       }}>
         {/* Left — bio */}
-        <div>
+        <motion.div
+          initial={{ opacity: 0, x: reduced ? 0 : -24 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        >
           <div style={{
             fontFamily: "var(--font-mono)", fontSize: "11px",
             color: "var(--text-muted)", textTransform: "uppercase",
@@ -92,9 +107,19 @@ export function Contact() {
           }}>
             Stack &amp; services
           </div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-            {SKILLS.map(s => <Tag key={s}>{s}</Tag>)}
-          </div>
+          <motion.div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+            {SKILLS.map((s, index) => (
+              <motion.div
+                key={s}
+                initial={{ opacity: 0, y: reduced ? 0 : 8 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: index * 0.04, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <Tag>{s}</Tag>
+              </motion.div>
+            ))}
+          </motion.div>
 
           <div style={{
             marginTop: "40px", padding: "20px 24px",
@@ -114,10 +139,15 @@ export function Contact() {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Right — Concierge */}
-        <div>
+        <motion.div
+          initial={{ opacity: 0, x: reduced ? 0 : 24 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.6, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+        >
           <div style={{
             fontFamily: "var(--font-mono)", fontSize: "11px",
             display: "flex", alignItems: "center", gap: "8px",
@@ -134,7 +164,7 @@ export function Contact() {
             onSend={handleSend}
             placeholder="Tell me what you're building…"
           />
-        </div>
+        </motion.div>
       </div>
     </section>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { Badge } from "@/components/core/Badge";
 
 const links = [
@@ -10,6 +11,7 @@ const links = [
 ];
 
 export function Nav() {
+  const reduced = useReducedMotion();
   const [scrolled, setScrolled] = React.useState(false);
   const [active, setActive] = React.useState("");
 
@@ -20,16 +22,20 @@ export function Nav() {
   }, []);
 
   return (
-    <nav style={{
-      position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
-      display: "flex", alignItems: "center", justifyContent: "space-between",
-      padding: "0 48px",
-      height: "64px",
-      background: scrolled ? "rgba(8,8,15,.92)" : "transparent",
-      backdropFilter: scrolled ? "blur(20px)" : "none",
-      borderBottom: scrolled ? "1px solid var(--border)" : "1px solid transparent",
-      transition: "background var(--duration-default) var(--ease-default), border-color var(--duration-default) var(--ease-default), backdrop-filter var(--duration-default) var(--ease-default)",
-    }}>
+    <motion.nav
+      initial={{ opacity: 0, y: reduced ? 0 : -16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      style={{
+        position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "0 48px",
+        height: "64px",
+        background: scrolled ? "rgba(8,8,15,.92)" : "transparent",
+        backdropFilter: scrolled ? "blur(20px)" : "none",
+        borderBottom: scrolled ? "1px solid var(--border)" : "1px solid transparent",
+        transition: "background var(--duration-default) var(--ease-default), border-color var(--duration-default) var(--ease-default), backdrop-filter var(--duration-default) var(--ease-default)",
+      }}>
       <a
         href="#"
         style={{
@@ -80,6 +86,6 @@ export function Nav() {
           Start a project
         </a>
       </div>
-    </nav>
+    </motion.nav>
   );
 }

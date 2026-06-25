@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { motion, useReducedMotion } from "framer-motion";
 
 type Variant = "primary" | "secondary" | "ghost" | "danger";
 type Size = "sm" | "md" | "lg";
@@ -33,7 +34,7 @@ const variantBase: Record<Variant, React.CSSProperties> = {
 const variantHover: Record<Variant, React.CSSProperties> = {
   primary:   { boxShadow: "var(--shadow-accent)", filter: "brightness(1.08)" },
   secondary: { background: "var(--bg-surface-hover)", boxShadow: "var(--shadow-accent)" },
-  ghost:     { background: "var(--bg-surface)", borderColor: "var(--border-accent)", color: "var(--text-display)" },
+  ghost:     { background: "var(--bg-surface)", border: "1px solid var(--border-accent)", color: "var(--text-display)" },
   danger:    { background: "var(--danger-subtle)", boxShadow: "0 0 20px var(--danger-glow)" },
 };
 
@@ -48,6 +49,7 @@ export function Button({
   style,
   type = "button",
 }: ButtonProps) {
+  const reduced = useReducedMotion();
   const [hovered, setHovered] = React.useState(false);
   const [pressed, setPressed] = React.useState(false);
 
@@ -74,13 +76,12 @@ export function Button({
     outline: "none",
     letterSpacing: 0,
     whiteSpace: "nowrap",
-    transform: pressed && !disabled ? "scale(0.97)" : "scale(1)",
     ...(hovered && !disabled ? h : {}),
     ...style,
   };
 
   return (
-    <button
+    <motion.button
       type={type}
       style={computed}
       disabled={disabled}
@@ -91,6 +92,9 @@ export function Button({
       onMouseUp={() => setPressed(false)}
       onFocus={() => setHovered(true)}
       onBlur={() => setHovered(false)}
+      whileHover={{ scale: reduced ? 1 : 1.02 }}
+      whileTap={{ scale: reduced ? 1 : 0.97 }}
+      transition={{ duration: 0.15, ease: [0.34, 1.56, 0.64, 1] }}
     >
       {loading ? (
         <span style={{
@@ -104,6 +108,6 @@ export function Button({
         </span>
       ) : null}
       {children}
-    </button>
+    </motion.button>
   );
 }

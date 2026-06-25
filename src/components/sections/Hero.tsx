@@ -4,27 +4,47 @@ import React from "react";
 import { Button } from "@/components/core/Button";
 import { AIStateIndicator, type AIState } from "@/components/ai/AIStateIndicator";
 import { ConciergeSurface, type Message } from "@/components/ai/ConciergeSurface";
-
-const REPLIES = [
-  "Pedro builds AI integrations, automations, and web apps — shipped, not demoed. Want to scope a project?",
-  "That's right in Pedro's lane. What's the timeline and stack you're working with?",
-  "Send the details over and Pedro will get back to you within 24 hours.",
-];
-let replyIndex = 0;
+import { streamConcierge } from "@/lib/streamConcierge";
+import { motion, useReducedMotion } from "framer-motion";
 
 export function Hero() {
+  const reduced = useReducedMotion();
+
+  const fadeUp = (delay: number, y = 20) => ({
+    initial: { opacity: 0, y: reduced ? 0 : y },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.7, delay: delay / 1000, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] },
+  });
+
   const [aiState, setAiState] = React.useState<AIState>("idle");
   const [msgs, setMsgs] = React.useState<Message[]>([]);
 
-  const handleSend = (text: string) => {
-    setMsgs(m => [...m, { role: "user", content: text }]);
+  const handleSend = async (text: string) => {
+    const userMsg: Message = { role: "user", content: text };
+    const thread = [...msgs, userMsg];
+    setMsgs(thread);
     setAiState("processing");
-    setTimeout(() => {
-      setAiState("responding");
-      setMsgs(m => [...m, { role: "ai", content: REPLIES[replyIndex % REPLIES.length] }]);
-      replyIndex++;
-      setTimeout(() => setAiState("idle"), 1800);
-    }, 1400);
+
+    let isFirst = true;
+    try {
+      await streamConcierge(thread, (token) => {
+        if (isFirst) {
+          isFirst = false;
+          setAiState("responding");
+          setMsgs(m => [...m, { role: "ai", content: token }]);
+        } else {
+          setMsgs(m => {
+            const next = [...m];
+            next[next.length - 1] = { role: "ai", content: next[next.length - 1].content + token };
+            return next;
+          });
+        }
+      });
+    } catch {
+      setMsgs(m => [...m, { role: "ai", content: "Connection hiccup — try again." }]);
+    } finally {
+      setAiState("idle");
+    }
   };
 
   return (
@@ -60,15 +80,15 @@ export function Hero() {
         textAlign: "center",
         position: "relative", zIndex: 1,
       }}>
-        <div style={{
+        <motion.div {...fadeUp(0, 12)} style={{
           fontFamily: "var(--font-mono)", fontSize: "12px",
           color: "var(--accent)", textTransform: "uppercase",
           letterSpacing: "0.1em", marginBottom: "24px",
         }}>
           // full-stack · AI · Santiago, DO
-        </div>
+        </motion.div>
 
-        <h1 style={{
+        <motion.h1 {...fadeUp(100, 20)} style={{
           fontFamily: "var(--font-display)",
           fontSize: "clamp(40px, 6vw, 72px)",
           fontWeight: 700, lineHeight: 1.05, letterSpacing: "-0.03em",
@@ -76,25 +96,30 @@ export function Hero() {
         }}>
           I build the AI layer<br />
           <span style={{ color: "var(--accent)" }}>your product is missing.</span>
-        </h1>
+        </motion.h1>
 
-        <p style={{
+        <motion.p {...fadeUp(200, 16)} style={{
           fontFamily: "var(--font-body)", fontSize: "18px", lineHeight: 1.6,
           color: "var(--text-body)", margin: "0 0 40px", maxWidth: "560px",
         }}>
           Solo developer. Fast delivery. AI integrations, automations, web &amp; mobile apps — shipped, not demoed.
-        </p>
+        </motion.p>
 
-        <div style={{ display: "flex", gap: "12px", marginBottom: "64px" }}>
+        <motion.div {...fadeUp(300, 12)} style={{ display: "flex", gap: "12px", marginBottom: "64px" }}>
           <Button variant="primary" size="lg" onClick={() => document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth" })}>
             Start a project
           </Button>
           <Button variant="ghost" size="lg" onClick={() => document.querySelector("#work")?.scrollIntoView({ behavior: "smooth" })}>
             See the work
           </Button>
-        </div>
+        </motion.div>
 
-        <div style={{ width: "100%", maxWidth: "640px" }}>
+        <motion.div
+          initial={{ opacity: 0, scale: reduced ? 1 : 0.97 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.7, delay: 0.45, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
+          style={{ width: "100%", maxWidth: "640px" }}
+        >
           <div style={{
             fontFamily: "var(--font-mono)", fontSize: "11px",
             color: aiState === "idle" ? "var(--text-muted)" : "var(--ai-responding)",
@@ -110,7 +135,7 @@ export function Hero() {
             onSend={handleSend}
             placeholder="Ask me what Pedro can build for you."
           />
-        </div>
+        </motion.div>
       </div>
     </section>
   );

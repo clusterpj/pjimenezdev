@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { AnimatePresence } from "framer-motion";
+import { PageTransition } from "@/components/layout/PageTransition";
 
 const spaceGrotesk = localFont({
   src: "./fonts/SpaceGrotesk-VariableFont_wght.ttf",
@@ -39,7 +39,7 @@ export default function RootLayout({
       className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
       <body>
-        <AnimatePresence mode="wait">{children}</AnimatePresence>
+        <PageTransition>{children}</PageTransition>
       </body>
     </html>
   );

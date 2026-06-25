@@ -1,26 +1,140 @@
 @import "tailwindcss";
 
+/* ─── Design Tokens ─────────────────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Backgrounds */
+  --bg-base: #08080F;
+  --bg-surface: #101019;
+  --bg-surface-hover: #16161F;
+
+  /* Brand accent — amber. Warm = brand (Pedro). Never mixed with AI colors. */
+  --accent: #FFB23E;
+  --accent-glow: rgba(255, 178, 62, .15);
+  --accent-subtle: rgba(255, 178, 62, .08);
+
+  /* Text */
+  --text-display: #FFFFFF;
+  --text-body: #C8C8D0;
+  --text-muted: #7A7A88;
+
+  /* Borders */
+  --border: rgba(255, 255, 255, .08);
+  --border-accent: rgba(255, 178, 62, .30);
+
+  /* AI state colors — cool-violet family. Reserved for AI presence ONLY. */
+  --ai-listening: #6E8BFF;
+  --ai-processing: #9B6BFF;
+  --ai-responding: #C8A8FF;
+  --ai-listening-glow: rgba(110, 139, 255, .18);
+  --ai-processing-glow: rgba(155, 107, 255, .18);
+  --ai-responding-glow: rgba(200, 168, 255, .18);
+
+  /* Semantic */
+  --danger: #FF6B6B;
+  --danger-glow: rgba(255, 107, 107, .15);
+  --danger-subtle: rgba(255, 107, 107, .08);
+  --success: #4ADE9A;
+  --success-glow: rgba(74, 222, 154, .15);
+  --success-subtle: rgba(74, 222, 154, .08);
+
+  /* Typography */
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --t-xs: 11px;
+  --t-sm: 13px;
+  --t-base: 15px;
+  --t-md: 18px;
+  --t-lg: 24px;
+  --t-xl: 36px;
+  --t-2xl: 56px;
+  --t-3xl: 80px;
+
+  --leading-tight: 1.05;
+  --leading-snug: 1.15;
+  --leading-heading: 1.3;
+  --leading-body: 1.65;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.08em;
+
+  /* Spacing (4px base) */
+  --space-1: 4px;   --space-2: 8px;   --space-3: 12px;
+  --space-4: 16px;  --space-5: 20px;  --space-6: 24px;
+  --space-8: 32px;  --space-10: 40px; --space-12: 48px;
+  --space-16: 64px; --space-20: 80px; --space-24: 96px;
+  --space-32: 128px;
+
+  /* Radii */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, .45);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, .55);
+  --shadow-accent: 0 0 24px var(--accent-glow);
+  --shadow-ai: 0 0 32px var(--ai-processing-glow);
+
+  /* Layout */
+  --container-max: 1200px;
+  --container-pad: 20px;
+  --container-pad-lg: 48px;
+
+  /* Motion — LOCKED */
+  --ease-default: cubic-bezier(.4, 0, .2, 1);
+  --ease-spring: cubic-bezier(.34, 1.56, .64, 1);
+  --ease-out-expo: cubic-bezier(.16, 1, .3, 1);
+  --duration-instant: 80ms;
+  --duration-fast: 150ms;
+  --duration-default: 300ms;
+  --duration-slow: 600ms;
+  --duration-ai: 2400ms;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* ─── Base ───────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  background: var(--bg-base);
+  color-scheme: dark;
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg-base);
+  color: var(--text-body);
+  font-family: var(--font-display);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Global keyframes ───────────────────────────────────────────────────── */
+@keyframes ai-breathe {
+  0%, 100% { opacity: .6; transform: scale(.85); }
+  50%       { opacity: 1; transform: scale(1); }
+}
+
+@keyframes dot-bounce {
+  0%, 100% { transform: translateY(0); opacity: .35; }
+  50%       { transform: translateY(-4px); opacity: 1; }
+}
+
+@keyframes btn-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }

@@ -74,7 +74,7 @@ export function Contact() {
             color: "var(--text-muted)", textTransform: "uppercase",
             letterSpacing: ".1em", marginBottom: "20px",
           }}>
-            // about
+            {"// about"}
           </div>
 
           <h2 style={{

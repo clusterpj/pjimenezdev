@@ -51,7 +51,6 @@ export function Button({
 }: ButtonProps) {
   const reduced = useReducedMotion();
   const [hovered, setHovered] = React.useState(false);
-  const [pressed, setPressed] = React.useState(false);
 
   const s = sizeTokens[size];
   const v = variantBase[variant];
@@ -87,9 +86,7 @@ export function Button({
       disabled={disabled}
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => { setHovered(false); setPressed(false); }}
-      onMouseDown={() => setPressed(true)}
-      onMouseUp={() => setPressed(false)}
+      onMouseLeave={() => setHovered(false)}
       onFocus={() => setHovered(true)}
       onBlur={() => setHovered(false)}
       whileHover={{ scale: reduced ? 1 : 1.02 }}

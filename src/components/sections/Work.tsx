@@ -53,7 +53,7 @@ export function Work() {
             color: "var(--text-muted)", textTransform: "uppercase",
             letterSpacing: ".1em", marginBottom: "16px",
           }}>
-            // selected work
+            {"// selected work"}
           </div>
           <motion.div
             initial={{ opacity: 0, y: reduced ? 0 : 24 }}

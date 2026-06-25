@@ -85,7 +85,7 @@ export function Hero() {
           color: "var(--accent)", textTransform: "uppercase",
           letterSpacing: "0.1em", marginBottom: "24px",
         }}>
-          // full-stack · AI · Santiago, DO
+          {"// full-stack · AI · Santiago, DO"}
         </motion.div>
 
         <motion.h1 {...fadeUp(100, 20)} style={{

@@ -3,6 +3,8 @@
 import React from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Badge } from "@/components/core/Badge";
+import { AIStateIndicator } from "@/components/ai/AIStateIndicator";
+import { useConcierge } from "@/lib/concierge-context";
 
 const links = [
   { label: "Work",    href: "#work" },
@@ -10,10 +12,33 @@ const links = [
   { label: "Contact", href: "#contact" },
 ];
 
+function LangToggle() {
+  const [lang, setLang] = React.useState<"EN" | "ES">("EN");
+  return (
+    <div role="group" aria-label="Language" style={{
+      display: "inline-flex", alignItems: "center", gap: "2px", padding: "3px",
+      border: "1px solid var(--border)", borderRadius: "var(--radius-full)",
+      background: "var(--bg-surface)",
+    }}>
+      {(["EN", "ES"] as const).map(l => (
+        <button key={l} onClick={() => setLang(l)} aria-pressed={lang === l} style={{
+          fontFamily: "var(--font-mono)", fontSize: "12px", letterSpacing: ".05em",
+          cursor: "pointer", padding: "5px 11px", borderRadius: "var(--radius-full)",
+          border: "none",
+          background: lang === l ? "var(--accent-subtle)" : "transparent",
+          color: lang === l ? "var(--accent)" : "var(--text-muted)",
+          transition: "all var(--duration-fast) var(--ease-default)",
+        }}>{l}</button>
+      ))}
+    </div>
+  );
+}
+
 export function Nav() {
   const reduced = useReducedMotion();
   const [scrolled, setScrolled] = React.useState(false);
   const [active, setActive] = React.useState("");
+  const { open, isOpen } = useConcierge();
 
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -70,6 +95,26 @@ export function Nav() {
 
       <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
         <Badge variant="accent" dot>Available</Badge>
+        <LangToggle />
+        <button
+          onClick={() => open()}
+          aria-label="Open concierge"
+          style={{
+            display: "inline-flex", alignItems: "center", gap: "8px",
+            background: "transparent", border: "none", cursor: "pointer", padding: "8px 6px",
+            fontFamily: "var(--font-mono)", fontSize: "12px", letterSpacing: ".04em",
+            color: isOpen ? "var(--text-display)" : "var(--text-muted)",
+            transition: "color var(--duration-fast) var(--ease-default)",
+            whiteSpace: "nowrap",
+          }}
+          onMouseEnter={e => (e.currentTarget.style.color = "var(--text-display)")}
+          onMouseLeave={e => (e.currentTarget.style.color = isOpen ? "var(--text-display)" : "var(--text-muted)")}
+        >
+          <span style={{ color: isOpen ? "var(--accent)" : "var(--text-muted)", transition: "color var(--duration-fast) var(--ease-default)" }}>
+            {"// ask"}
+          </span>
+          <AIStateIndicator state={isOpen ? "listening" : "idle"} size="sm" />
+        </button>
         <a
           href="#contact"
           style={{

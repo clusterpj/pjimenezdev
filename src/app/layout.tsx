@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { PageTransition } from "@/components/layout/PageTransition";
+import { ConciergeProvider } from "@/lib/concierge-context";
+import { ConciergeOverlay } from "@/components/ai/ConciergeOverlay";
 
 const spaceGrotesk = localFont({
   src: "./fonts/SpaceGrotesk-VariableFont_wght.ttf",
@@ -39,7 +41,10 @@ export default function RootLayout({
       className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
       <body>
-        <PageTransition>{children}</PageTransition>
+        <ConciergeProvider>
+          <PageTransition>{children}</PageTransition>
+          <ConciergeOverlay />
+        </ConciergeProvider>
       </body>
     </html>
   );

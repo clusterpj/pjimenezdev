@@ -129,4 +129,4 @@ Option: the AI Concierge handles initial qualification before routing to a calen
 - WCAG AA minimum accessibility
 - No heavy assets in critical render path — WebGL loads after TTI
 - Bilingual EN/ES from day one — all components designed with longer ES strings in mind
-- Cloudflare Pages deployment — no Node.js-only dependencies in critical path
+- Cloudflare Workers deployment (OpenNext) — edge-compatible, no Node.js-only dependencies in critical path

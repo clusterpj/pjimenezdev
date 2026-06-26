@@ -11,20 +11,28 @@ Full specs: `docs/DESIGN_BRIEF.md`, `docs/BRAND.md`, `docs/SITEMAP.md`.
 ## Commands
 
 ```bash
-npm run dev      # dev server on localhost:3000
-npm run build    # production build
-npm run lint     # ESLint
+npm run dev          # dev server on localhost:3000
+npm run build        # production (Next.js) build
+npm run lint         # ESLint
+
+# Cloudflare Workers (OpenNext)
+npm run build:cf     # build Worker + assets bundle
+npm run preview:cf   # build + preview in workerd runtime (127.0.0.1:8787)
+npm run deploy       # build + deploy to Cloudflare Workers
+npm run cf-typegen   # regenerate cloudflare-env.d.ts from wrangler bindings
 ```
 
 No test suite yet — add Vitest when unit tests are needed.
 
+See `README.md` for the full deployment flow (login, secrets, custom domain).
+
 ## Stack
 
-- **Next.js 16 (App Router)** — Edge Runtime, Cloudflare-compatible
+- **Next.js 15 (App Router)** — React 19, Cloudflare-compatible
 - **Tailwind CSS v4** — PostCSS-based (no `tailwind.config.js`)
-- **Framer Motion** — all animations (to be installed)
+- **Framer Motion** — all animations (installed)
 - **MDX** — blog content (to be installed)
-- **Cloudflare Pages + Workers** — deployment via `@cloudflare/next-on-pages`
+- **Cloudflare Workers** — deployment via `@opennextjs/cloudflare` (OpenNext); static assets served through the `ASSETS` binding, Worker entry at `.open-next/worker.js` (see `wrangler.toml`)
 - **Anthropic Claude API** — Concierge + Estimator (server-side only, via Workers)
 - **Cloudflare Workers AI + Vectorize** — edge inference + embeddings for personalization
 - **Three.js / WebGL** — reactive hero (loads post-TTI, never in critical path)

@@ -6,6 +6,7 @@ import { AIStateIndicator, type AIState } from "@/components/ai/AIStateIndicator
 import { ConciergeSurface, type Message } from "@/components/ai/ConciergeSurface";
 import { streamConcierge } from "@/lib/streamConcierge";
 import { motion, useReducedMotion } from "framer-motion";
+import { useConcierge } from "@/lib/concierge-context";
 
 export function Hero() {
   const reduced = useReducedMotion();
@@ -16,6 +17,7 @@ export function Hero() {
     transition: { duration: 0.7, delay: delay / 1000, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] },
   });
 
+  const { open } = useConcierge();
   const [aiState, setAiState] = React.useState<AIState>("idle");
   const [msgs, setMsgs] = React.useState<Message[]>([]);
 
@@ -106,7 +108,7 @@ export function Hero() {
         </motion.p>
 
         <motion.div {...fadeUp(300, 12)} style={{ display: "flex", gap: "12px", marginBottom: "64px" }}>
-          <Button variant="primary" size="lg" onClick={() => document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth" })}>
+          <Button variant="primary" size="lg" onClick={() => open()}>
             Start a project
           </Button>
           <Button variant="ghost" size="lg" onClick={() => document.querySelector("#work")?.scrollIntoView({ behavior: "smooth" })}>

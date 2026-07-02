@@ -9,7 +9,11 @@ export async function generateMetadata(props: { params: Promise<{ lang: string }
     title: t.metaTitle,
     description: t.metaDesc,
     alternates: { canonical: `${langPrefix(lang)}/about`, languages: { en: "/about", es: "/es/about" } },
-    openGraph: { type: "profile", title: t.metaTitle, description: t.metaDesc, url: `${SITE_URL}${langPrefix(lang)}/about` },
+    openGraph: {
+      type: "profile", title: t.metaTitle, description: t.metaDesc,
+      url: `${SITE_URL}${langPrefix(lang)}/about`,
+      images: [{ url: "/images/og/about.png", width: 1200, height: 630 }],
+    },
   };
 }
 
@@ -77,6 +81,18 @@ export default async function AboutPage(props: { params: Promise<{ lang: string 
             </div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {/* eslint-disable-next-line @next/next/no-img-element -- pre-sized static WebP, no optimizer on Workers */}
+            <img
+              src="/images/pedro/portrait.webp"
+              alt={a.portraitAlt}
+              width={1400}
+              height={1750}
+              style={{
+                display: "block", width: "100%", height: "auto",
+                borderRadius: "var(--radius-lg)", border: "1px solid var(--border)",
+                boxShadow: "var(--shadow-md)",
+              }}
+            />
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
               {t.stats.map((st) => (
                 <div key={st.label} style={{ background: "var(--bg-surface)", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", padding: 22 }}>

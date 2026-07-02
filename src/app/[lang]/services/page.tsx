@@ -10,7 +10,11 @@ export async function generateMetadata(props: { params: Promise<{ lang: string }
     title: t.metaTitle,
     description: t.metaDesc,
     alternates: { canonical: `${langPrefix(lang)}/services`, languages: { en: "/services", es: "/es/services" } },
-    openGraph: { type: "website", title: t.metaTitle, description: t.metaDesc, url: `${SITE_URL}${langPrefix(lang)}/services` },
+    openGraph: {
+      type: "website", title: t.metaTitle, description: t.metaDesc,
+      url: `${SITE_URL}${langPrefix(lang)}/services`,
+      images: [{ url: "/images/og/home.png", width: 1200, height: 630 }],
+    },
   };
 }
 

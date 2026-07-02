@@ -17,6 +17,7 @@ export async function generateMetadata(props: { params: Promise<{ lang: string }
       title: t.metaTitle,
       description: t.metaDesc,
       url: `${SITE_URL}${langPrefix(lang)}/`,
+      images: [{ url: "/images/og/home.png", width: 1200, height: 630 }],
     },
     twitter: { card: "summary_large_image" },
   };
@@ -145,13 +146,28 @@ export default async function Home(props: { params: Promise<{ lang: string }> })
               {t.home.aboutCta} <span style={{ fontFamily: "var(--font-mono)" }}>→</span>
             </Link>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-            {t.stats.map((st) => (
-              <div key={st.label} style={{ background: "var(--bg-surface)", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", padding: 22 }}>
-                <div style={{ font: "700 34px var(--font-display), sans-serif", color: "var(--accent)", letterSpacing: "-.02em", lineHeight: 1, marginBottom: 8 }}>{st.value}</div>
-                <div style={{ font: "400 13px/1.4 var(--font-body), sans-serif", color: "var(--text-muted)" }}>{st.label}</div>
-              </div>
-            ))}
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {/* eslint-disable-next-line @next/next/no-img-element -- pre-sized static WebP, no optimizer on Workers */}
+            <img
+              src="/images/pedro/working.webp"
+              alt={t.home.workingAlt}
+              width={1600}
+              height={1000}
+              loading="lazy"
+              style={{
+                display: "block", width: "100%", height: "auto",
+                borderRadius: "var(--radius-lg)", border: "1px solid var(--border)",
+                boxShadow: "var(--shadow-md)",
+              }}
+            />
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              {t.stats.map((st) => (
+                <div key={st.label} style={{ background: "var(--bg-surface)", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", padding: 22 }}>
+                  <div style={{ font: "700 34px var(--font-display), sans-serif", color: "var(--accent)", letterSpacing: "-.02em", lineHeight: 1, marginBottom: 8 }}>{st.value}</div>
+                  <div style={{ font: "400 13px/1.4 var(--font-body), sans-serif", color: "var(--text-muted)" }}>{st.label}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </Reveal>
       </section>

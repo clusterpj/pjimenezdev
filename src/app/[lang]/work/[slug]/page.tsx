@@ -20,7 +20,11 @@ export async function generateMetadata(props: { params: Promise<{ lang: string; 
       canonical: `${langPrefix(lang)}/work/${p.id}`,
       languages: { en: `/work/${p.id}`, es: `/es/work/${p.id}` },
     },
-    openGraph: { type: "article", title: t.metaTitle(p.name), description: p.desc, url: `${SITE_URL}${langPrefix(lang)}/work/${p.id}` },
+    openGraph: {
+      type: "article", title: t.metaTitle(p.name), description: p.desc,
+      url: `${SITE_URL}${langPrefix(lang)}/work/${p.id}`,
+      images: [{ url: "/images/og/home.png", width: 1200, height: 630 }],
+    },
   };
 }
 

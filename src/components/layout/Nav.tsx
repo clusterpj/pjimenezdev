@@ -1,136 +1,134 @@
 "use client";
 
 import React from "react";
-import { motion, useReducedMotion } from "framer-motion";
-import { Badge } from "@/components/core/Badge";
-import { AIStateIndicator } from "@/components/ai/AIStateIndicator";
-import { useConcierge } from "@/lib/concierge-context";
-
-const links = [
-  { label: "Work",    href: "#work" },
-  { label: "About",   href: "#contact" },
-  { label: "Contact", href: "#contact" },
-];
-
-function LangToggle() {
-  const [lang, setLang] = React.useState<"EN" | "ES">("EN");
-  return (
-    <div role="group" aria-label="Language" style={{
-      display: "inline-flex", alignItems: "center", gap: "2px", padding: "3px",
-      border: "1px solid var(--border)", borderRadius: "var(--radius-full)",
-      background: "var(--bg-surface)",
-    }}>
-      {(["EN", "ES"] as const).map(l => (
-        <button key={l} onClick={() => setLang(l)} aria-pressed={lang === l} style={{
-          fontFamily: "var(--font-mono)", fontSize: "12px", letterSpacing: ".05em",
-          cursor: "pointer", padding: "5px 11px", borderRadius: "var(--radius-full)",
-          border: "none",
-          background: lang === l ? "var(--accent-subtle)" : "transparent",
-          color: lang === l ? "var(--accent)" : "var(--text-muted)",
-          transition: "all var(--duration-fast) var(--ease-default)",
-        }}>{l}</button>
-      ))}
-    </div>
-  );
-}
+import Link from "next/link";
+import { useParams, usePathname } from "next/navigation";
+import { asLang, getDict, langPrefix } from "@/lib/content";
 
 export function Nav() {
-  const reduced = useReducedMotion();
+  const params = useParams();
+  const pathname = usePathname();
+  const lang = asLang((params.lang as string) || "en");
+  const t = getDict(lang);
+  const pre = langPrefix(lang);
+  const isHome = pathname === "/" || pathname === "/es";
+
   const [scrolled, setScrolled] = React.useState(false);
-  const [active, setActive] = React.useState("");
-  const { open, isOpen } = useConcierge();
+  const [menuOpen, setMenuOpen] = React.useState(false);
 
   React.useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
+    const onScroll = () => setScrolled(window.scrollY > 70);
+    onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // On the home page the nav starts transparent and links resolve in on scroll;
+  // subpages are always solid with links visible.
+  const resolved = !isHome || scrolled;
+  const contactHref = isHome ? "#contact" : `${pre}/about#contact`;
+
+  const links = [
+    { label: t.nav.work, href: `${pre}/work`, active: pathname.startsWith(`${pre}/work`) },
+    { label: t.nav.services, href: `${pre}/services`, active: pathname.startsWith(`${pre}/services`) },
+    { label: t.nav.about, href: `${pre}/about`, active: pathname.startsWith(`${pre}/about`) },
+    { label: t.nav.contact, href: contactHref, active: false },
+  ];
+
+  const fadeStyle: React.CSSProperties = {
+    opacity: resolved ? 1 : 0,
+    transform: resolved ? "translateY(0)" : "translateY(-6px)",
+    pointerEvents: resolved ? "auto" : "none",
+    transition: "opacity .35s var(--ease-default), transform .35s var(--ease-default)",
+  };
+
   return (
-    <motion.nav
-      initial={{ opacity: 0, y: reduced ? 0 : -16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      style={{
-        position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "0 48px",
-        height: "64px",
-        background: scrolled ? "rgba(8,8,15,.92)" : "transparent",
-        backdropFilter: scrolled ? "blur(20px)" : "none",
-        borderBottom: scrolled ? "1px solid var(--border)" : "1px solid transparent",
-        transition: "background var(--duration-default) var(--ease-default), border-color var(--duration-default) var(--ease-default), backdrop-filter var(--duration-default) var(--ease-default)",
-      }}>
-      <a
-        href="#"
+    <>
+      <header
         style={{
-          background: "none", border: "none", cursor: "pointer", padding: 0, textDecoration: "none",
-          fontFamily: "var(--font-display)", fontSize: "18px", fontWeight: 700,
-          color: "var(--text-display)", letterSpacing: "-0.02em",
+          position: "fixed", top: 0, left: 0, right: 0, zIndex: 200,
+          background: resolved ? "rgba(8,8,15,.88)" : "rgba(8,8,15,0)",
+          backdropFilter: "blur(20px)",
+          borderBottom: `1px solid ${resolved ? "var(--border)" : "rgba(255,255,255,0)"}`,
+          transition: "background .3s var(--ease-default), border-color .3s var(--ease-default)",
         }}
       >
-        pedro<span style={{ color: "var(--accent)" }}>.</span>j
-      </a>
+        <div style={{
+          maxWidth: 1200, margin: "0 auto", display: "flex", alignItems: "center",
+          justifyContent: "space-between", padding: "0 clamp(20px,5vw,48px)", height: 64,
+        }}>
+          <Link href={pre || "/"} style={{
+            font: "600 21px var(--font-display), sans-serif", letterSpacing: "-.5px",
+            color: "#fff", textDecoration: "none",
+          }}>
+            pedrojimenez<span style={{ color: "var(--accent)" }}>.dev</span>
+          </Link>
 
-      <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
-        {links.map(({ label, href }) => (
-          <a
-            key={label}
-            href={href}
-            onClick={() => setActive(label)}
+          <nav className="nav-desktop" style={{ alignItems: "center", gap: 2 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 2, ...fadeStyle }}>
+              {links.map((l) => (
+                <Link key={l.label} className="navlink" href={l.href} aria-current={l.active ? "page" : undefined}>
+                  {l.label}
+                </Link>
+              ))}
+              <span style={{ width: 1, height: 22, background: "var(--border)", margin: "0 12px" }} />
+            </div>
+            <span style={{
+              display: "inline-flex", alignItems: "center", gap: 7,
+              font: "500 11px var(--font-mono), monospace", color: "var(--success)",
+              textTransform: "uppercase", letterSpacing: ".06em", marginRight: 14,
+            }}>
+              <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--success)", boxShadow: "0 0 8px var(--success-glow)" }} />
+              {t.nav.available}
+            </span>
+            <a className="cta-solid" href={contactHref} style={fadeStyle}>{t.nav.startProject}</a>
+          </nav>
+
+          <button
+            className="nav-burger"
+            onClick={() => setMenuOpen((o) => !o)}
+            aria-label={t.nav.menu}
             style={{
-              background: "none", border: "none", cursor: "pointer", textDecoration: "none",
-              fontFamily: "var(--font-body)", fontSize: "14px",
-              color: active === label ? "var(--text-display)" : "var(--text-muted)",
-              padding: "8px 14px",
-              borderRadius: "var(--radius-sm)",
-              borderBottom: active === label ? "1px solid var(--accent)" : "1px solid transparent",
-              transition: "color var(--duration-fast) var(--ease-default)",
+              alignItems: "center", justifyContent: "center", width: 42, height: 42,
+              background: "var(--bg-surface)", border: "1px solid var(--border)",
+              borderRadius: "var(--radius-sm)", cursor: "pointer", color: "#fff",
             }}
           >
-            {label}
-          </a>
-        ))}
-      </div>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
+        </div>
+      </header>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-        <Badge variant="accent" dot>Available</Badge>
-        <LangToggle />
-        <button
-          onClick={() => open()}
-          aria-label="Open concierge"
+      {menuOpen && (
+        <div
+          onClick={() => setMenuOpen(false)}
           style={{
-            display: "inline-flex", alignItems: "center", gap: "8px",
-            background: "transparent", border: "none", cursor: "pointer", padding: "8px 6px",
-            fontFamily: "var(--font-mono)", fontSize: "12px", letterSpacing: ".04em",
-            color: isOpen ? "var(--text-display)" : "var(--text-muted)",
-            transition: "color var(--duration-fast) var(--ease-default)",
-            whiteSpace: "nowrap",
+            position: "fixed", inset: 0, zIndex: 300, background: "rgba(5,5,9,.72)",
+            backdropFilter: "blur(10px)", display: "flex", flexDirection: "column",
+            padding: "80px 28px 28px",
           }}
-          onMouseEnter={e => (e.currentTarget.style.color = "var(--text-display)")}
-          onMouseLeave={e => (e.currentTarget.style.color = isOpen ? "var(--text-display)" : "var(--text-muted)")}
         >
-          <span style={{ color: isOpen ? "var(--accent)" : "var(--text-muted)", transition: "color var(--duration-fast) var(--ease-default)" }}>
-            {"// ask"}
-          </span>
-          <AIStateIndicator state={isOpen ? "listening" : "idle"} size="sm" />
-        </button>
-        <a
-          href="#contact"
-          style={{
-            background: "var(--accent)", color: "#08080F",
-            border: "none", cursor: "pointer", textDecoration: "none",
-            fontFamily: "var(--font-body)", fontSize: "14px", fontWeight: 600,
-            padding: "9px 20px", borderRadius: "var(--radius-md)",
-            transition: "filter var(--duration-fast) var(--ease-default)",
-            display: "inline-block",
-          }}
-          onMouseEnter={e => (e.currentTarget.style.filter = "brightness(1.1)")}
-          onMouseLeave={e => (e.currentTarget.style.filter = "")}
-        >
-          Start a project
-        </a>
-      </div>
-    </motion.nav>
+          {links.map((l, i) => (
+            <Link
+              key={l.label}
+              className="navlink"
+              href={l.href}
+              style={{
+                fontSize: 22, color: l.active ? "var(--accent)" : "#fff", padding: "16px 4px",
+                borderBottom: "1px solid var(--border)",
+                marginBottom: i === links.length - 1 ? 24 : 0,
+              }}
+            >
+              {l.label}
+            </Link>
+          ))}
+          <a className="cta-solid" href={contactHref} style={{ justifyContent: "center", padding: 15, fontSize: 16 }}>
+            {t.nav.startProject}
+          </a>
+        </div>
+      )}
+    </>
   );
 }

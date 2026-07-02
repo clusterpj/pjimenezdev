@@ -17,7 +17,7 @@ export class DeepSeekProvider implements AIProvider {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${getKey()}`,
       },
-      body: JSON.stringify({ model: MODEL, messages, stream: false }),
+      body: JSON.stringify({ model: MODEL, messages, stream: false, max_tokens: 500 }),
     });
 
     if (!res.ok) {
@@ -38,7 +38,7 @@ export class DeepSeekProvider implements AIProvider {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${getKey()}`,
       },
-      body: JSON.stringify({ model: MODEL, messages, stream: true }),
+      body: JSON.stringify({ model: MODEL, messages, stream: true, max_tokens: 500 }),
     });
 
     if (!res.ok) {
@@ -54,17 +54,22 @@ export class DeepSeekProvider implements AIProvider {
     return new ReadableStream<Uint8Array>({
       async start(controller) {
         const reader = res.body!.getReader();
+        let buf = '';
         try {
-          while (true) {
+          outer: while (true) {
             const { done, value } = await reader.read();
             if (done) break;
 
-            const chunk = decoder.decode(value, { stream: true });
-            for (const line of chunk.split('\n')) {
+            // Buffer across reads: an SSE line can be split between chunks,
+            // and a partial line would fail JSON.parse and drop tokens.
+            buf += decoder.decode(value, { stream: true });
+            const lines = buf.split('\n');
+            buf = lines.pop() ?? '';
+            for (const line of lines) {
               const trimmed = line.trim();
               if (!trimmed.startsWith('data:')) continue;
               const data = trimmed.slice(5).trim();
-              if (data === '[DONE]') break;
+              if (data === '[DONE]') break outer;
               try {
                 const parsed = JSON.parse(data) as {
                   choices: { delta: { content?: string } }[];

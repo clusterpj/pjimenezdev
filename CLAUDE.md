@@ -39,29 +39,33 @@ See `README.md` for the full deployment flow (login, secrets, custom domain).
 
 ## Architecture
 
+Production design source of truth: the "Website production design system" handoff (5 pages: Home, Work, Project Detail, Services, About). Case-study content lives in code, not MDX.
+
 ```
 src/
+  middleware.ts             # i18n: EN at /, ES at /es/* (rewrite → /en/* internally)
   app/
-    layout.tsx              # root layout — fonts, global CSS vars
-    page.tsx                # home (single-scroll, all sections)
-    work/
-      page.tsx              # portfolio index
-      [slug]/page.tsx       # case study detail
-    blog/
-      page.tsx              # article index
-      [slug]/page.tsx       # MDX article
-    contact/page.tsx
-    es/                     # Spanish routes mirror EN structure
-    api/
-      concierge/route.ts    # → Cloudflare Worker (Claude API)
-      estimator/route.ts    # → Cloudflare Worker (Claude API)
-      personalize/route.ts  # → Cloudflare Worker + Vectorize
-  components/               # shared UI
-  lib/                      # AI client wrappers, i18n helpers, constants
-  content/                  # MDX files for blog + case studies
+    [lang]/
+      layout.tsx            # root layout — fonts, Nav, Footer
+      page.tsx              # home (hero = live concierge, work, services, about, contact CTA)
+      work/page.tsx         # portfolio index (client-side filters)
+      work/[slug]/page.tsx  # case study (data-driven from lib/content.ts)
+      services/page.tsx
+      about/page.tsx        # bio + #contact (scoping concierge + email card)
+    api/concierge/route.ts  # streaming chat, system prompts built from lib/content.ts
+    sitemap.ts / robots.ts  # built-in Next metadata routes
+  components/
+    ai/ConciergeSurface.tsx # useConciergeChat hook + chat surface (home + contact modes)
+    ai/ContactConcierge.tsx
+    layout/ Nav, Footer     # nav resolves on scroll (home), solid on subpages
+    sections/ HomeHero, WorkGrid
+    Reveal.tsx              # IntersectionObserver scroll reveals
+  lib/
+    content.ts              # ALL site copy + 8 projects, EN + ES — single source of truth
+    ai/                     # provider abstraction (DeepSeek, streaming)
 ```
 
-AI API keys stay server-side only — never in client bundles.
+AI API keys stay server-side only — never in client bundles. Email: hello@pedrojimenez.dev. GitHub: clusterpj.
 
 ## Design Tokens (Phase 0 — LOCKED)
 
@@ -128,16 +132,13 @@ Every interactive component needs four states: **Default → Listening (`--ai-li
 
 ## Routes & Sections
 
-Home (`/`) is a single-scroll page with anchor nav: Hero → Services → Portfolio Preview → Testimonials → Blog Preview → Contact.
+Routes: `/` (hero concierge → work → services → about teaser → contact CTA), `/work`, `/work/[slug]`, `/services`, `/about` (+`#contact`). No blog, no separate contact page — contact lives on About.
 
-AI surfaces (non-page, activated from multiple triggers):
-- **Concierge** — command palette overlay; knows all services, case studies, pricing, booking flow; Pedro's voice (casual, direct, technical)
-- **Estimator** — drawer/full-screen; plain language → scope + timeline + ballpark budget
-- **Personalization** — session-based (no login), tracks engagement, reorders portfolio cards and surfaces blog posts
+AI surface: the **concierge** — inline chat surfaces (home hero + about contact), NOT a chat bubble or overlay. Knows all projects, availability, pricing stance; Pedro's voice (casual, direct, technical); replies in the visitor's language. States: idle → processing (3 bouncing dots, never a spinner) → responding, driven by violet-family colors only.
 
 ## i18n
 
-Route-based: English at `/`, Spanish at `/es/*`. All components must handle ES strings (~20% longer than EN). Blog posts can be EN-only or bilingual — author decides per post.
+Route-based: English at `/`, Spanish at `/es/*` (middleware rewrites unprefixed → `/en/*` internally; explicit `/en/*` 308-redirects to unprefixed). ALL copy lives in `src/lib/content.ts` per language. All components must handle ES strings (~20% longer than EN).
 
 ## Key Constraints
 

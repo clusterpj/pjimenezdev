@@ -6,11 +6,11 @@
 ---
  
 ## Logo
-- **Status:** [ ] Not started
-- **Direction to explore:** Monogram "PJ" or wordmark "Pedro Jimenez" — must work at 32px favicon and full nav size
+- **Status:** [x] Locked
+- **Wordmark:** `pedro.jimenez.dev` — all lowercase, dots in `--accent` (#FFB23E), letters in `--text-display`
+- **Font:** Space Grotesk 700, `letter-spacing: -0.02em`
 - **Feeling:** Mark should feel technical, precise — not playful, not aggressive
 - **Constraint:** Must work on near-black background as primary context
-- **Files:** none yet
 ---
  
 ## Color System

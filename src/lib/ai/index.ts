@@ -1,7 +1,5 @@
 import type { AIProvider, ProviderName } from './types';
 import { DeepSeekProvider } from './providers/deepseek';
-import { AnthropicProvider } from './providers/anthropic';
-import { OpenAIProvider } from './providers/openai';
 
 export type { AIProvider, ChatMessage, ProviderName } from './types';
 
@@ -17,11 +15,9 @@ export function getProvider(): AIProvider {
       _provider = new DeepSeekProvider();
       break;
     case 'anthropic':
-      _provider = new AnthropicProvider();
-      break;
+      throw new Error('Anthropic provider not yet implemented. See src/lib/ai/providers/deepseek.ts for the pattern.');
     case 'openai':
-      _provider = new OpenAIProvider();
-      break;
+      throw new Error('OpenAI provider not yet implemented. See src/lib/ai/providers/deepseek.ts for the pattern.');
     default:
       throw new Error(`Unknown AI_PROVIDER: "${name}". Valid values: deepseek, anthropic, openai`);
   }

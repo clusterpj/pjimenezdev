@@ -31,17 +31,17 @@ export interface Project {
 
 const projectsEn: Project[] = [
   {
-    id: "botforge", name: "BotForge", year: "2026", category: "AI · SaaS", cats: ["AI", "SaaS"],
-    tags: ["AI integration", "SaaS", "Node.js", "DeepSeek", "RAG", "WhatsApp API"],
-    desc: "Multi-tenant SaaS that lets any SMB deploy an AI-powered WhatsApp support bot — no code. First vertical: a full dental clinic CRM with AI clinical notes, scheduling, and voice escalation.",
-    problem: "SMBs live on WhatsApp, but answering the same questions all day doesn't scale. Off-the-shelf chatbots don't speak the business's language, and custom builds are priced for enterprises. Dental clinics had it worst: scheduling, reminders, and clinical notes all handled by hand.",
-    build: "A multi-tenant platform where each business gets its own AI agent, grounded in its own data — no code required.",
+    id: "melow", name: "Melow", year: "2026", category: "AI · SaaS", cats: ["AI", "SaaS"],
+    tags: ["AI integration", "SaaS", "Next.js", "Fastify", "Qdrant", "Vapi"],
+    desc: "Multi-tenant AI agent platform deploying chatbots across WhatsApp and website widgets. Flagship deployment: an AI Clinical Copilot that runs a dentist's patient records hands-free, mid-consultation.",
+    problem: "During a consultation, dentists are hands-on with patients. Stopping to type clinical notes, update an odontogram, or write a prescription breaks focus, slows the visit down, and means touching a keyboard with gloved hands.",
+    build: "A ReAct-based Clinical Copilot that acts as the dentist's assistant: it listens to spoken observations and manages the patient's electronic medical record in real time, on a provider-agnostic multi-tenant platform with RAG grounding and reliable background job processing.",
     points: [
-      "RAG pipeline over each tenant's documents so answers come from the business's real information, not the model's imagination.",
-      "Full dental clinic CRM as the first vertical: AI clinical notes, appointment scheduling, and voice escalation when the bot should hand off to a human.",
-      "WhatsApp Business API integration with tenant isolation, so one deployment serves every customer.",
+      "Automated WhatsApp intake: patients complete a 13-step medical questionnaire — history, allergies, medications — before the appointment, structured straight into the record.",
+      "Hands-free charting: the dentist calls out a finding in plain language (\"caries on tooth 16, mesial and occlusal\"), the Copilot parses the FDI notation and updates the interactive odontogram itself.",
+      "Proactive tool-calling across 13+ backend actions — log an extraction, cross-check allergies, draft the prescription and SOAP note — without being asked twice; voice calls escalate to an AI agent via Vapi when a patient prefers to call instead of message.",
     ],
-    outcome: "Live in production with the dental vertical running end-to-end — clinics onboard, connect WhatsApp, and their bot is answering patients the same day.",
+    outcome: "Natural-language observations become structured medical data — SOAP notes, treatment plans, phased budgets, odontograms — cutting the administrative load so the dentist stays focused on the patient, not the keyboard.",
   },
   {
     id: "c21-perdomo", name: "C21 Perdomo", year: "2026", category: "Web app", cats: ["Web"],
@@ -138,17 +138,17 @@ const projectsEn: Project[] = [
 
 const projectsEs: Project[] = [
   {
-    id: "botforge", name: "BotForge", year: "2026", category: "IA · SaaS", cats: ["AI", "SaaS"],
-    tags: ["Integración IA", "SaaS", "Node.js", "DeepSeek", "RAG", "WhatsApp API"],
-    desc: "SaaS multi-tenant que permite a cualquier PyME desplegar un bot de soporte por WhatsApp con IA — sin código. Primer vertical: un CRM completo para clínicas dentales con notas clínicas por IA, agenda y escalación por voz.",
-    problem: "Las PyMEs viven en WhatsApp, pero responder las mismas preguntas todo el día no escala. Los chatbots genéricos no hablan el idioma del negocio, y los desarrollos a medida tienen precios de empresa grande. Las clínicas dentales lo tenían peor: agenda, recordatorios y notas clínicas, todo a mano.",
-    build: "Una plataforma multi-tenant donde cada negocio recibe su propio agente de IA, anclado en sus propios datos — sin escribir código.",
+    id: "melow", name: "Melow", year: "2026", category: "IA · SaaS", cats: ["AI", "SaaS"],
+    tags: ["Integración IA", "SaaS", "Next.js", "Fastify", "Qdrant", "Vapi"],
+    desc: "Plataforma multi-tenant de agentes de IA que despliega chatbots en WhatsApp y widgets web. Implementación insignia: un Copiloto Clínico de IA que lleva el expediente del paciente con las manos libres, en plena consulta.",
+    problem: "Durante una consulta, el dentista tiene las manos ocupadas con el paciente. Detenerse a escribir notas clínicas, actualizar un odontograma o redactar una receta rompe la concentración, ralentiza la visita y significa tocar un teclado con guantes puestos.",
+    build: "Un Copiloto Clínico basado en ReAct que actúa como asistente del dentista: escucha las observaciones habladas y gestiona el expediente médico electrónico del paciente en tiempo real, sobre una plataforma multi-tenant agnóstica de proveedor con RAG y procesamiento confiable de tareas en segundo plano.",
     points: [
-      "Pipeline RAG sobre los documentos de cada tenant, para que las respuestas salgan de la información real del negocio y no de la imaginación del modelo.",
-      "CRM completo para clínicas dentales como primer vertical: notas clínicas con IA, agenda de citas y escalación por voz cuando el bot debe pasar la conversación a un humano.",
-      "Integración con WhatsApp Business API con aislamiento por tenant: un solo despliegue sirve a todos los clientes.",
+      "Admisión automatizada por WhatsApp: los pacientes completan un cuestionario médico de 13 pasos — historial, alergias, medicamentos — antes de la cita, estructurado directo en el expediente.",
+      "Registro con las manos libres: el dentista dice un hallazgo en lenguaje natural (\"caries en el diente 16, mesial y oclusal\"), el Copiloto interpreta la notación FDI y actualiza el odontograma interactivo por su cuenta.",
+      "Ejecución proactiva de herramientas entre más de 13 acciones del backend — registrar una extracción, cruzar alergias, redactar la receta y la nota SOAP — sin que se lo pidan dos veces; las llamadas escalan a un agente de voz por IA vía Vapi cuando el paciente prefiere llamar en vez de escribir.",
     ],
-    outcome: "En producción con el vertical dental corriendo de punta a punta — las clínicas se registran, conectan WhatsApp y su bot atiende pacientes el mismo día.",
+    outcome: "Las observaciones en lenguaje natural se convierten en datos médicos estructurados — notas SOAP, planes de tratamiento, presupuestos por fases, odontogramas — reduciendo la carga administrativa para que el dentista se enfoque en el paciente, no en el teclado.",
   },
   {
     id: "c21-perdomo", name: "C21 Perdomo", year: "2026", category: "Web app", cats: ["Web"],
@@ -310,7 +310,7 @@ const en = {
   ],
   work: {
     metaTitle: "Work — 8 shipped projects | Pedro Jimenez, full-stack + AI developer",
-    metaDesc: "AI integrations, SaaS platforms, mobile apps, and automations shipped by Pedro Jimenez — BotForge, C21 Perdomo, MoneyGuard, Cabarete Villas, LuxeDrive and more. All in production.",
+    metaDesc: "AI integrations, SaaS platforms, mobile apps, and automations shipped by Pedro Jimenez — Melow, C21 Perdomo, MoneyGuard, Cabarete Villas, LuxeDrive and more. All in production.",
     eyebrow: "// work — 8 projects, all in production",
     title1: "Built and shipped.", title2: "Not demoed.",
     sub: "Every project here is live, with real users. Click one for the full story — problem, build, and what shipped.",
@@ -342,7 +342,7 @@ const en = {
     title1: "One developer.", title2: "The whole stack.",
     sub: "No handoffs, no account managers, no agency markup. You talk to the person writing the code — and it ships in weeks, not quarters.",
     cards: [
-      { title: "AI integrations", icon: "AI", desc: "RAG over your documents, AI agents, chat that knows your business, clinical-note generation — wired into your product, not bolted on. If the model needs your data to be useful, this is the work.", tools: ["DeepSeek", "Claude", "Ollama", "RAG", "LangChain"], cta: "See BotForge", href: "/work/botforge" },
+      { title: "AI integrations", icon: "AI", desc: "RAG over your documents, AI agents, chat that knows your business, clinical-note generation — wired into your product, not bolted on. If the model needs your data to be useful, this is the work.", tools: ["DeepSeek", "Claude", "Ollama", "RAG", "LangChain"], cta: "See Melow", href: "/work/melow" },
       { title: "Automations", icon: "</>", desc: "Bots and pipelines that do the boring work: WhatsApp and Telegram bots, social publishing, data reconciliation, report generation. If your team does it weekly by hand, it can probably run itself.", tools: ["WhatsApp API", "Telegram", "Bun", "n8n"], cta: "See Social Command Center", href: "/work/social-command" },
       { title: "Web apps", icon: "{ }", desc: "Next.js front to back — multilingual, SEO-tuned, statically fast, with server-side analytics that feed your ad algorithms real conversions. Headless CMS when your team needs to edit content themselves.", tools: ["Next.js", "WordPress", "Firebase", "GA4", "Meta CAPI"], cta: "See C21 Perdomo", href: "/work/c21-perdomo" },
       { title: "Mobile apps", icon: "[ ]", desc: "Flutter apps that ship to both stores from one codebase. Offline-first for markets where connectivity isn't a given, OCR, payments, and AI features that work on-device and off.", tools: ["Flutter", "FastAPI", "Hive", "OCR"], cta: "See MoneyGuard", href: "/work/moneyguard" },
@@ -463,7 +463,7 @@ const es: typeof en = {
   ],
   work: {
     metaTitle: "Proyectos — 8 proyectos entregados | Pedro Jimenez, desarrollador full-stack + IA",
-    metaDesc: "Integraciones de IA, plataformas SaaS, apps móviles y automatizaciones entregadas por Pedro Jimenez — BotForge, C21 Perdomo, MoneyGuard, Cabarete Villas, LuxeDrive y más. Todo en producción.",
+    metaDesc: "Integraciones de IA, plataformas SaaS, apps móviles y automatizaciones entregadas por Pedro Jimenez — Melow, C21 Perdomo, MoneyGuard, Cabarete Villas, LuxeDrive y más. Todo en producción.",
     eyebrow: "// proyectos — 8 proyectos, todos en producción",
     title1: "Construido y entregado.", title2: "No demos.",
     sub: "Cada proyecto aquí está en vivo, con usuarios reales. Haz clic en uno para la historia completa — problema, construcción y qué se entregó.",
@@ -495,7 +495,7 @@ const es: typeof en = {
     title1: "Un desarrollador.", title2: "Todo el stack.",
     sub: "Sin intermediarios, sin gerentes de cuenta, sin margen de agencia. Hablas con la persona que escribe el código — y se entrega en semanas, no en trimestres.",
     cards: [
-      { title: "Integraciones de IA", icon: "AI", desc: "RAG sobre tus documentos, agentes de IA, chat que conoce tu negocio, generación de notas clínicas — integrados a tu producto, no pegados encima. Si el modelo necesita tus datos para ser útil, este es el trabajo.", tools: ["DeepSeek", "Claude", "Ollama", "RAG", "LangChain"], cta: "Ver BotForge", href: "/work/botforge" },
+      { title: "Integraciones de IA", icon: "AI", desc: "RAG sobre tus documentos, agentes de IA, chat que conoce tu negocio, generación de notas clínicas — integrados a tu producto, no pegados encima. Si el modelo necesita tus datos para ser útil, este es el trabajo.", tools: ["DeepSeek", "Claude", "Ollama", "RAG", "LangChain"], cta: "Ver Melow", href: "/work/melow" },
       { title: "Automatizaciones", icon: "</>", desc: "Bots y pipelines que hacen el trabajo aburrido: bots de WhatsApp y Telegram, publicación en redes, conciliación de datos, generación de reportes. Si tu equipo lo hace a mano cada semana, probablemente puede correr solo.", tools: ["WhatsApp API", "Telegram", "Bun", "n8n"], cta: "Ver Social Command Center", href: "/work/social-command" },
       { title: "Apps web", icon: "{ }", desc: "Next.js de punta a punta — multilingüe, afinado para SEO, estáticamente rápido, con analítica server-side que alimenta tus algoritmos de anuncios con conversiones reales. CMS headless cuando tu equipo necesita editar contenido por su cuenta.", tools: ["Next.js", "WordPress", "Firebase", "GA4", "Meta CAPI"], cta: "Ver C21 Perdomo", href: "/work/c21-perdomo" },
       { title: "Apps móviles", icon: "[ ]", desc: "Apps Flutter que llegan a ambas tiendas desde un solo código. Offline-first para mercados donde la conectividad no está garantizada, OCR, pagos y funciones de IA que trabajan con y sin conexión.", tools: ["Flutter", "FastAPI", "Hive", "OCR"], cta: "Ver MoneyGuard", href: "/work/moneyguard" },

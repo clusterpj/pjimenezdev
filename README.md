@@ -4,15 +4,16 @@ Pedro Jimenez's personal portfolio and services site — a dark, premium, AI-int
 experience. Built with Next.js and deployed to Cloudflare Workers.
 
 See `docs/DESIGN_BRIEF.md`, `docs/BRAND.md`, and `docs/SITEMAP.md` for full specs,
-and `CLAUDE.md` for architecture and design tokens.
+`CLAUDE.md` for architecture and design tokens, and `docs/STATUS.md` for current
+state and the pending-work backlog.
 
 ## Stack
 
 - **Next.js 15 (App Router)** — React 19
 - **Tailwind CSS v4** — PostCSS-based (no `tailwind.config.js`)
-- **Framer Motion** — animations
+- **CSS-only motion** — design-system transitions + IntersectionObserver reveals (no animation lib)
 - **Cloudflare Workers** — deployed via [`@opennextjs/cloudflare`](https://opennext.js.org/cloudflare)
-- **AI providers** — DeepSeek / Anthropic / OpenAI (server-side only, selected via `AI_PROVIDER`)
+- **AI provider** — DeepSeek, streaming, server-side only (`AI_PROVIDER` in `wrangler.toml`)
 
 ## Local development
 
@@ -49,7 +50,7 @@ npm run cf-typegen   # regenerate cloudflare-env.d.ts from wrangler bindings
 
 ```bash
 npx wrangler login                          # authenticate (browser OAuth)
-npx wrangler secret put DEEPSEEK_API_KEY    # set secrets (repeat for ANTHROPIC_API_KEY / OPENAI_API_KEY)
+npx wrangler secret put DEEPSEEK_API_KEY    # the only secret the site needs
 npm run deploy
 ```
 

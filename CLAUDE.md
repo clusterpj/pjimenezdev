@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Pedro's personal portfolio and services site — pedrojimenez.dev. A dark, premium, AI-integrated experience positioning Pedro Jimenez (solo full-stack dev, Santiago DR) as an elite builder across AI, automation, web/mobile apps, motion graphics, and 3D. The site itself must be proof of what Pedro can build.
 
 Full specs: `docs/DESIGN_BRIEF.md`, `docs/BRAND.md`, `docs/SITEMAP.md`.
+Current state + pending-work backlog: `docs/STATUS.md`.
 
 ## Commands
 

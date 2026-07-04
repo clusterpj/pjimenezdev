@@ -46,7 +46,7 @@ handoff implemented 1:1:
    Conceptual-scene prompt cores (combine with the style recipe below):
    | Project | Concept |
    |---|---|
-   | botforge | glowing WhatsApp-green chat bubbles orbiting a neural node, dental tools in bokeh |
+   | melow | real screenshot preferred (odontogram chart or WhatsApp intake flow) — has an actual UI |
    | c21-perdomo | Caribbean modern house at dusk, amber windows, translucent listing-card UI overlay |
    | moneyguard | hand holding phone with a red "hold on" intervention alert, pesos blurred behind |
    | cabarete-villas | beachfront villa at golden hour, floating calendar/availability overlay |
@@ -59,6 +59,8 @@ handoff implemented 1:1:
    > subtle cool violet fill like monitor glow, cinematic, no text
 2. **Real metrics in case studies** — problem/build/outcome copy in `src/lib/content.ts` was
    drafted from one-liners with NO invented numbers; replace with real figures where they exist.
+   Melow (`f8d7f46`→`a9ed180`) is done as the template: real product details, renamed from
+   BotForge, with a redirect from the old `/work/botforge` URL in `next.config.ts`.
 3. **Spanish native pass** — ES copy in `content.ts` is Claude's translation in Pedro's voice;
    read through and adjust.
 4. **OG check** — preview links at opengraph.xyz after any metadata change; consider per-project

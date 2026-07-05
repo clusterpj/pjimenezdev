@@ -131,6 +131,39 @@ export function ConciergeSurface({
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages]);
 
+  // Detect email addresses the visitor types into the chat itself.
+  // When the agent asks for an email and the visitor replies with one,
+  // auto-populate the capture bar and trigger the send.
+  const sentRef = React.useRef(false);
+  React.useEffect(() => {
+    if (scope === "sending" || scope === "sent" || sentRef.current) return;
+    const last = messages.filter((m) => m.role === "user").at(-1);
+    if (!last) return;
+    const match = last.content.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+    if (match) {
+      sentRef.current = true;
+      const addr = match[1];
+      // Let the agent's confirmation message render, then populate + fire
+      const timer = setTimeout(async () => {
+        setEmail(addr);
+        setScope("sending");
+        try {
+          const res = await fetch("/api/scope", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ messages, email: addr, lang }),
+          });
+          if (!res.ok) throw new Error(await res.json().then((d) => d.error).catch(() => "fail"));
+          setScope("sent");
+        } catch {
+          setScope("error");
+          sentRef.current = false;
+        }
+      }, 800);
+      return () => clearTimeout(timer);
+    }
+  }, [messages, scope, lang]);
+
   const sendScope = async () => {
     if (!email.trim() || scope === "sending" || scope === "sent") return;
     setScope("sending");

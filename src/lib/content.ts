@@ -400,6 +400,13 @@ const en = {
     fallback: `Not sure how to answer that — email ${EMAIL} and he'll reply within a day.`,
     error: `Connection hiccup on my end. Try again in a sec, or just email ${EMAIL}.`,
     you: "You", ai: "Pedro.ai",
+    emailLabel: "Your email",
+    emailPlaceholder: "you@example.com",
+    sendScope: "Send this scope to Pedro",
+    sendingScope: "Sending…",
+    scopeSent: "Sent! Pedro will reply within 24h — check your inbox for a copy.",
+    scopeError: "Couldn't send. Try again or email hello@pedrojimenez.dev directly.",
+    scopeHint: "Drop your email and I'll send this conversation to Pedro.",
   },
 };
 
@@ -553,6 +560,13 @@ const es: typeof en = {
     fallback: `No estoy seguro de cómo responder eso — escribe a ${EMAIL} y te responde en un día.`,
     error: `Se me cayó la conexión un segundo. Inténtalo de nuevo, o escribe directo a ${EMAIL}.`,
     you: "Tú", ai: "Pedro.ai",
+    emailLabel: "Tu email",
+    emailPlaceholder: "tu@ejemplo.com",
+    sendScope: "Enviar este alcance a Pedro",
+    sendingScope: "Enviando…",
+    scopeSent: "¡Enviado! Pedro te responderá en 24h — revisa tu bandeja, tienes una copia.",
+    scopeError: "No se pudo enviar. Intenta de nuevo o escribe a hello@pedrojimenez.dev directamente.",
+    scopeHint: "Déjame tu email y le envío esta conversación a Pedro.",
   },
 };
 

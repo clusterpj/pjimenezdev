@@ -93,6 +93,8 @@ const dotMap: Record<AiState, { c: string; g: string }> = {
   responding: { c: "var(--ai-responding)", g: "0 0 12px var(--ai-responding-glow)" },
 };
 
+type ScopeState = "idle" | "sending" | "sent" | "error";
+
 export function ConciergeSurface({
   chat, lang, mode, placeholder, maxThreadHeight = 320,
 }: {
@@ -102,14 +104,35 @@ export function ConciergeSurface({
   placeholder: string;
   maxThreadHeight?: number;
 }) {
-  const t = getDict(lang);
+  const t = getDict(lang).concierge;
   const { messages, input, setInput, aiState, sending, ask } = chat;
   const threadRef = React.useRef<HTMLDivElement>(null);
+
+  // Email capture for scope submission
+  const [email, setEmail] = React.useState("");
+  const [scope, setScope] = React.useState<ScopeState>("idle");
+  const hasThread = messages.length >= 2;
 
   React.useEffect(() => {
     const el = threadRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages]);
+
+  const sendScope = async () => {
+    if (!email.trim() || scope === "sending" || scope === "sent") return;
+    setScope("sending");
+    try {
+      const res = await fetch("/api/scope", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages, email: email.trim(), lang }),
+      });
+      if (!res.ok) throw new Error(await res.json().then((d) => d.error).catch(() => "fail"));
+      setScope("sent");
+    } catch {
+      setScope("error");
+    }
+  };
 
   const sf = surfMap[aiState];
   const d = dotMap[aiState];
@@ -143,7 +166,7 @@ export function ConciergeSurface({
             m.role === "user" ? (
               <div key={i} style={{ alignSelf: "flex-end", display: "flex", flexDirection: "column", gap: 5, alignItems: "flex-end", maxWidth: "88%" }}>
                 <span style={{ font: "500 10px var(--font-mono), monospace", color: "var(--accent)", textTransform: "uppercase", letterSpacing: ".08em" }}>
-                  {t.concierge.you}
+                  {t.you}
                 </span>
                 <div style={{
                   font: "400 14px/1.6 var(--font-body), sans-serif", color: "var(--text-display)",
@@ -156,7 +179,7 @@ export function ConciergeSurface({
             ) : (
               <div key={i} style={{ alignSelf: "flex-start", display: "flex", flexDirection: "column", gap: 5, alignItems: "flex-start", maxWidth: "90%" }}>
                 <span style={{ font: "500 10px var(--font-mono), monospace", color: "var(--ai-responding)", textTransform: "uppercase", letterSpacing: ".08em" }}>
-                  {t.concierge.ai}
+                  {t.ai}
                 </span>
                 <div style={{
                   font: "400 14px/1.65 var(--font-mono), monospace", color: "var(--text-body)",
@@ -176,6 +199,25 @@ export function ConciergeSurface({
                   animation: `dot-bounce 1.2s ${delay}s ease infinite`,
                 }} />
               ))}
+            </div>
+          )}
+
+          {scope === "sent" && (
+            <div style={{
+              alignSelf: "flex-start", background: "var(--bg-surface)", border: "1px solid var(--success)",
+              borderRadius: "var(--radius-md)", padding: "14px 18px",
+              font: "400 13px/1.5 var(--font-body), sans-serif", color: "var(--success)",
+            }}>
+              {t.scopeSent}
+            </div>
+          )}
+          {scope === "error" && (
+            <div style={{
+              alignSelf: "flex-start", background: "var(--bg-surface)", border: "1px solid var(--danger)",
+              borderRadius: "var(--radius-md)", padding: "14px 18px",
+              font: "400 13px/1.5 var(--font-body), sans-serif", color: "var(--danger)",
+            }}>
+              {t.scopeError}
             </div>
           )}
         </div>
@@ -220,9 +262,52 @@ export function ConciergeSurface({
             transition: "all .15s", flexShrink: 0, minHeight: 44,
           }}
         >
-          {t.home.send}
+          {getDict(lang).home.send}
         </button>
       </div>
+
+      {/* Email capture — shown once the conversation has substance */}
+      {hasThread && scope !== "sent" && (
+        <div style={{
+          display: "flex", alignItems: "center", gap: 10,
+          padding: "12px 18px 16px", borderTop: "1px solid var(--border)",
+        }}>
+          <span style={{
+            font: "500 11px var(--font-mono), monospace", color: "var(--text-muted)",
+            textTransform: "uppercase", letterSpacing: ".06em", flexShrink: 0, whiteSpace: "nowrap",
+          }}>
+            {t.emailLabel}
+          </span>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => { setEmail(e.target.value); if (scope === "error") setScope("idle"); }}
+            onKeyDown={(e) => { if (e.key === "Enter") sendScope(); }}
+            placeholder={t.emailPlaceholder}
+            style={{
+              flex: 1, background: "var(--bg-surface)", border: "1px solid var(--border)",
+              borderRadius: "var(--radius-sm)", color: "var(--text-display)",
+              font: "400 14px var(--font-body), sans-serif", caretColor: "var(--accent)",
+              padding: "8px 12px", minHeight: 40, minWidth: 0,
+            }}
+          />
+          <button
+            onClick={sendScope}
+            disabled={!email.trim() || scope === "sending"}
+            style={{
+              background: email.trim() ? "var(--accent)" : "var(--bg-surface)",
+              color: email.trim() ? "#08080F" : "var(--text-muted)",
+              border: `1px solid ${email.trim() ? "transparent" : "var(--border)"}`,
+              borderRadius: "var(--radius-md)", padding: "8px 16px",
+              font: "600 13px var(--font-body), sans-serif",
+              cursor: email.trim() ? "pointer" : "not-allowed",
+              transition: "all .15s", flexShrink: 0, minHeight: 40, whiteSpace: "nowrap",
+            }}
+          >
+            {scope === "sending" ? t.sendingScope : t.sendScope}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

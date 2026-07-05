@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "../globals.css";
 import { Nav } from "@/components/layout/Nav";
 import { Footer } from "@/components/layout/Footer";
+import { PageTracker } from "@/components/PageTracker";
 import { SITE_URL, asLang, langs } from "@/lib/content";
 
 const spaceGrotesk = localFont({
@@ -47,6 +48,7 @@ export default async function RootLayout(props: {
       className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
       <body style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+        <PageTracker />
         <Nav />
         <main style={{ flexGrow: 1 }}>{children}</main>
         <Footer lang={lang} />

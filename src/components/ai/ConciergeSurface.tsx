@@ -2,6 +2,7 @@
 
 import React from "react";
 import { type Lang, getDict } from "@/lib/content";
+import { sessionContext, bumpInteraction, trackChip } from "@/lib/session";
 
 export type AiState = "idle" | "processing" | "responding";
 export type ConciergeMode = "home" | "contact";
@@ -21,13 +22,19 @@ export function useConciergeChat(mode: ConciergeMode, lang: Lang, greeting?: str
   const [aiState, setAiState] = React.useState<AiState>("idle");
   const [sending, setSending] = React.useState(false);
   const idleTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const currentPage = React.useRef<string>("");
 
-  React.useEffect(() => () => clearTimeout(idleTimer.current), []);
+  React.useEffect(() => {
+    currentPage.current = window.location.pathname;
+    return () => clearTimeout(idleTimer.current);
+  }, []);
 
-  const ask = React.useCallback(async (text: string) => {
+  const ask = React.useCallback(async (text: string, isChip = false) => {
     const q = (text || "").trim();
     if (!q || sending) return;
     clearTimeout(idleTimer.current);
+    bumpInteraction();
+    if (isChip) trackChip(text);
 
     const history = [...messages, { role: "user" as const, content: q }].map((m) => ({
       role: m.role === "ai" ? ("assistant" as const) : ("user" as const),
@@ -43,7 +50,13 @@ export function useConciergeChat(mode: ConciergeMode, lang: Lang, greeting?: str
       const res = await fetch("/api/concierge", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: history, mode, stream: true }),
+        body: JSON.stringify({
+          messages: history,
+          mode,
+          stream: true,
+          currentPage: currentPage.current,
+          sessionContext: sessionContext(),
+        }),
       });
       if (!res.ok || !res.body) throw new Error(`HTTP ${res.status}`);
 

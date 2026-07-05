@@ -76,7 +76,7 @@ export function HomeHero({ lang }: { lang: Lang }) {
           </div>
           <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 240px), 1fr))" }}>
             {t.chips.map((chip) => (
-              <button key={chip} className="chip-btn" onClick={() => chat.ask(chip)}>
+              <button key={chip} className="chip-btn" onClick={() => chat.ask(chip, true)}>
                 <span data-arrow>›</span>
                 {chip}
               </button>

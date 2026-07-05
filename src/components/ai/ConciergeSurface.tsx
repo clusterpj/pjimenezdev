@@ -172,7 +172,7 @@ export function ConciergeSurface({
           ref={threadRef}
           style={{
             maxHeight: maxThreadHeight, overflowY: "auto", padding: "22px 22px 6px",
-            display: "flex", flexDirection: "column", gap: 16,
+            display: "flex", flexDirection: "column", gap: 20,
           }}
         >
           {messages.map((m, i) =>
@@ -195,9 +195,9 @@ export function ConciergeSurface({
                   {t.ai}
                 </span>
                 <div style={{
-                  font: "400 14px/1.65 var(--font-mono), monospace", color: "var(--text-body)",
+                  font: "400 14px/1.65 var(--font-body), sans-serif", color: "var(--text-body)",
                   background: "var(--bg-surface)", border: "1px solid var(--border)",
-                  borderRadius: "16px 16px 16px 4px", padding: "11px 15px",
+                  borderRadius: "16px 16px 16px 4px", padding: "12px 16px",
                 }}>
                   {m.content}
                 </div>

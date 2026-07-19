@@ -29,6 +29,9 @@ const jetbrainsMono = localFont({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  other: {
+    "facebook-domain-verification": "unjmj69cgycb6mazblh1s7pg1wiicm",
+  },
 };
 
 export function generateStaticParams() {

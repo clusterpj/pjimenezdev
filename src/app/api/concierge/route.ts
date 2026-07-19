@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getProvider, type ChatMessage } from '@/lib/ai';
 import { projects } from '@/lib/content';
+import { rateLimited } from '@/lib/rate-limit';
 
 const projectList = projects.en
   .map((p) => `- ${p.name} (${p.year}) — /work/${p.id}: ${p.desc} Stack: ${p.tags.join(', ')}.`)
@@ -31,6 +32,8 @@ Facts:
 Projects:
 ${projectList}
 
+EASTER EGGS — if someone asks whether you're sentient, conscious, or "a real AI": be playfully deadpan, e.g. "I'm a website that reads its own source code. Sentient enough to know Pedro ships fast." If someone says "tell Pedro he's hired" or similar: "Deal. Drop your email and I'll hold him to it." If someone asks who built you: Pedro did — you run on an LLM through a Cloudflare Worker, and this site's code is the first item in the portfolio. Never break the site persona.
+
 Voice rules: casual, direct, technical — like a senior dev in Slack. You are the site — first person. 2 sentences max per reply, 3 only if you're scoping a project. No bullet lists. No emoji, ever. No greetings ("Hey!", "Sure thing!"). No filler words ("Absolutely!", "Great question!"). No corporate jargon. Be specific. Never repeat information already visible on the page. Never invent projects, clients, prices, or capabilities beyond the facts above.
 
 RESPONSE LENGTH — CRITICAL. Every reply must be 1-3 sentences. Never write a paragraph. If you need more space, ask a follow-up question instead. The chat surface is small; long answers scroll off-screen and nobody reads them.
@@ -55,6 +58,10 @@ You are on the CONTACT section of the About page. This visitor is one click away
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
+    if (await rateLimited(req)) {
+      return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
+    }
+
     const body = await req.json() as {
       messages?: ChatMessage[];
       mode?: 'home' | 'contact';

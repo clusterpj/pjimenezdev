@@ -13,3 +13,9 @@ enabled = true
 
 [vars]
 AI_PROVIDER = "deepseek"
+
+# Per-IP limit shared by /api/concierge and /api/scope (LLM + email calls).
+[[ratelimits]]
+name = "AI_RATE_LIMITER"
+namespace_id = "1001"
+simple = { limit = 12, period = 60 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { EMAIL } from "@/lib/content";
 import { getProvider } from "@/lib/ai";
+import { rateLimited } from "@/lib/rate-limit";
 
 const RESEND = "https://api.resend.com/emails";
 
@@ -32,6 +33,10 @@ function summarisePrompt(lang: string) {
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
+    if (await rateLimited(req)) {
+      return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+    }
+
     const body = await req.json() as {
       messages?: { role: string; content: string }[];
       email?: string;

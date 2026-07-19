@@ -9,5 +9,14 @@ import { trackPage } from "@/lib/session";
 export function PageTracker() {
   const pathname = usePathname();
   React.useEffect(() => { trackPage(pathname); }, [pathname]);
+
+  // For the devs who open the console — of course you did.
+  React.useEffect(() => {
+    console.log(
+      "%c▲ pedrojimenez.dev %c\n\nYou opened the console — I like you already.\nThis site is Next.js 15 on Cloudflare Workers, and the concierge is real.\nTry the Konami code on the home page. Then email hello@pedrojimenez.dev.",
+      "font:700 16px 'Space Grotesk',sans-serif;color:#FFB23E",
+      "font:400 12px monospace;color:#9B6BFF",
+    );
+  }, []);
   return null;
 }

@@ -1,6 +1,6 @@
 # Project status & backlog
 
-Last updated: 2026-07-04. This is the pick-up-where-we-left-off doc.
+Last updated: 2026-07-19. This is the pick-up-where-we-left-off doc.
 Architecture and conventions live in `CLAUDE.md`; this file tracks state and pending work.
 
 ## Shipped (live at https://pedrojimenez.dev)
@@ -29,6 +29,20 @@ handoff implemented 1:1:
 - Source PNGs were Gemini-generated (in `C:\Users\Pedro\Pictures`); crops chosen to exclude
   the generator's sparkle watermark. Regenerate variants with the prompt recipe below.
 
+**Launch hardening + hero WebGL** (2026-07-19):
+
+- Per-IP rate limiting (12 req/min) on `/api/concierge` + `/api/scope` via the Workers
+  `[[ratelimits]]` binding (`AI_RATE_LIMITER` in `wrangler.toml`, helper in
+  `src/lib/rate-limit.ts`). Fail-open in plain `next dev` where the binding is absent.
+- AI-reactive Three.js particle field behind the hero concierge
+  (`src/components/sections/HeroField.tsx`): amber idle drift → listening blue on input
+  focus → violet family while processing/responding (driven by `pj:ai-state` CustomEvents
+  from `useConciergeChat`). Pointer-reactive, Konami-code burst, lazy-loaded post-TTI via
+  `next/dynamic`, skipped for `prefers-reduced-motion`, rAF paused off-screen.
+- Easter eggs: styled console message (`PageTracker`), hidden concierge personality
+  responses in the system prompt.
+- `facebook-domain-verification` meta tag in the root layout.
+
 ## Deploy / operate
 
 - `npm run deploy` (wrangler OAuth already logged in; `DEEPSEEK_API_KEY` is a Worker secret,
@@ -38,6 +52,11 @@ handoff implemented 1:1:
 
 ## Backlog (in priority order)
 
+0. **Web Analytics beacon** — Pedro: Cloudflare dashboard → Analytics & Logs →
+   Web Analytics → Add site (pedrojimenez.dev, disable automatic setup) → copy the beacon
+   token. Then add to `src/app/[lang]/layout.tsx` before `</body>`:
+   `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "TOKEN"}' />`.
+   Wrangler's OAuth token has no RUM scope, so this can't be done from the CLI.
 1. **Project thumbnails** — the biggest remaining visual gap. For each of the 8 projects:
    16:10 WebP at `public/images/projects/<project-id>/thumb.webp` (1600×1000, ≤150KB), plus
    optional `hero.webp` (2400×1200) for top projects. Preferred: real screenshot framed on a

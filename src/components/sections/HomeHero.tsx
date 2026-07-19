@@ -1,8 +1,24 @@
 "use client";
 
 import React from "react";
+import dynamic from "next/dynamic";
 import { type Lang, getDict } from "@/lib/content";
 import { ConciergeSurface, useConciergeChat } from "@/components/ai/ConciergeSurface";
+
+const HeroField = dynamic(() => import("@/components/sections/HeroField"), { ssr: false });
+
+/** Mount the WebGL field only after the browser is idle (post-TTI) and
+ *  never for reduced-motion users — the hero must work without it. */
+function useHeroField() {
+  const [show, setShow] = React.useState(false);
+  React.useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const idle = window.requestIdleCallback ?? ((cb: () => void) => setTimeout(cb, 1500));
+    const id = idle(() => setShow(true));
+    return () => (window.cancelIdleCallback ?? clearTimeout)(id as number);
+  }, []);
+  return show;
+}
 
 const dust = [
   { left: "30%", bottom: 120, size: 4, color: "var(--ai-listening)", anim: "dvfloat 7s linear infinite" },
@@ -13,6 +29,7 @@ const dust = [
 export function HomeHero({ lang }: { lang: Lang }) {
   const t = getDict(lang).home;
   const chat = useConciergeChat("home", lang);
+  const showField = useHeroField();
 
   return (
     <section style={{
@@ -24,6 +41,7 @@ export function HomeHero({ lang }: { lang: Lang }) {
         position: "absolute", inset: 0, pointerEvents: "none",
         background: "radial-gradient(ellipse 62% 52% at 50% 40%, rgba(155,107,255,.11) 0%, transparent 66%)",
       }} />
+      {showField && <HeroField />}
       {dust.map((p, i) => (
         <div key={i} style={{
           position: "absolute", left: p.left, bottom: p.bottom, width: p.size, height: p.size,

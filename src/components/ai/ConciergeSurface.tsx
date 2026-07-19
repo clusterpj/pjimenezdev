@@ -29,6 +29,11 @@ export function useConciergeChat(mode: ConciergeMode, lang: Lang, greeting?: str
     return () => clearTimeout(idleTimer.current);
   }, []);
 
+  // Broadcast AI state so ambient surfaces (hero WebGL field) can react to it.
+  React.useEffect(() => {
+    window.dispatchEvent(new CustomEvent("pj:ai-state", { detail: aiState }));
+  }, [aiState]);
+
   const ask = React.useCallback(async (text: string, isChip = false) => {
     const q = (text || "").trim();
     if (!q || sending) return;

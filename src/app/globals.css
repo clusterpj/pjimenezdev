@@ -241,6 +241,11 @@ a { color: inherit; }
   50%       { transform: translateY(-4px); opacity: 1; }
 }
 
+@keyframes hf-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
 @keyframes dvfloat {
   0%   { transform: translateY(0); opacity: 0; }
   18%  { opacity: .75; }

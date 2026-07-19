@@ -129,7 +129,9 @@ export function ConciergeSurface({
   // Email capture for scope submission
   const [email, setEmail] = React.useState("");
   const [scope, setScope] = React.useState<ScopeState>("idle");
-  const hasThread = messages.length >= 2;
+  // Don't pitch the email capture until a real conversation exists —
+  // one chip question + reply is browsing, not scoping.
+  const hasThread = messages.length >= 4;
 
   React.useEffect(() => {
     const el = threadRef.current;
@@ -295,8 +297,9 @@ export function ConciergeSurface({
             }
           }}
           placeholder={placeholder}
+          aria-label={placeholder}
           style={{
-            flex: 1, background: "transparent", border: "none", color: "var(--text-display)",
+            flex: 1, minWidth: 0, background: "transparent", border: "none", color: "var(--text-display)",
             font: "400 15px var(--font-body), sans-serif", caretColor: "var(--accent)", minHeight: 44,
           }}
         />

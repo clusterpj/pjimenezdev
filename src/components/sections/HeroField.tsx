@@ -40,7 +40,7 @@ const VERT = /* glsl */ `
 
     // pointer repulsion — field parts around the cursor
     vec2 d = p.xy - uPointer;
-    p.xy += normalize(d + 1e-4) * smoothstep(9.0, 0.0, length(d)) * 3.0;
+    p.xy += normalize(d + 1e-4) * smoothstep(6.0, 0.0, length(d)) * 2.2;
 
     // AI activity — the field leans toward the concierge as state rises
     float activity = clamp(uState, 0.0, 3.0) / 3.0;
@@ -98,7 +98,7 @@ export default function HeroField() {
     camera.position.z = 60;
     const visH = 2 * 60 * Math.tan((25 * Math.PI) / 180);
 
-    const count = window.innerWidth < 768 ? 1400 : 3200;
+    const count = window.innerWidth < 768 ? 700 : 1600;
     const pos = new Float32Array(count * 3);
     const seed = new Float32Array(count);
     const spreadX = (visH * (window.innerWidth / Math.max(window.innerHeight, 1)) * 1.15) / 2;
@@ -133,7 +133,9 @@ export default function HeroField() {
 
     const resize = () => {
       const { clientWidth: w, clientHeight: h } = host;
-      renderer.setSize(w, h, false);
+      // updateStyle must stay true: with DPR > 1 the buffer is larger than the
+      // host, and without CSS sizing the canvas overflows → pointer misalignment
+      renderer.setSize(w, h);
       camera.aspect = w / Math.max(h, 1);
       camera.updateProjectionMatrix();
     };

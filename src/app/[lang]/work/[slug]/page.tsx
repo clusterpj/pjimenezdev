@@ -23,7 +23,7 @@ export async function generateMetadata(props: { params: Promise<{ lang: string; 
     openGraph: {
       type: "article", title: t.metaTitle(p.name), description: p.desc,
       url: `${SITE_URL}${langPrefix(lang)}/work/${p.id}`,
-      images: [{ url: "/images/og/home.png", width: 1200, height: 630 }],
+      images: [{ url: p.image || "/images/og/home.png", width: 1200, height: 630 }],
     },
   };
 }
@@ -92,6 +92,22 @@ export default async function CaseStudy(props: { params: Promise<{ lang: string;
           {p.desc}
         </p>
       </section>
+
+      {p.image && (
+        <section style={{ maxWidth: 1100, margin: "0 auto", padding: "0 clamp(20px,5vw,48px) clamp(40px,6vw,64px)" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element -- external client-site photo, no optimizer on Workers */}
+          <img
+            src={p.image}
+            alt={p.name}
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            style={{
+              width: "100%", aspectRatio: "16/9", objectFit: "cover", display: "block",
+              borderRadius: "var(--radius-lg)", border: "1px solid var(--border)", boxShadow: "var(--shadow-md)",
+            }}
+          />
+        </section>
+      )}
 
       {/* ══ BODY ══ */}
       <section style={{ maxWidth: 1100, margin: "0 auto", padding: "0 clamp(20px,5vw,48px) clamp(56px,8vw,96px)" }}>

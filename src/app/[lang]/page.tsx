@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { EMAIL, SITE_URL, asLang, getDict, langPrefix, projects } from "@/lib/content";
+import { EMAIL, SITE_URL, GITHUB_URL, LINKEDIN_URL, FACEBOOK_URL, asLang, getDict, langPrefix, projects } from "@/lib/content";
 import { HomeHero, AskSiteButton } from "@/components/sections/HomeHero";
 import { Reveal } from "@/components/Reveal";
 
@@ -55,6 +55,7 @@ export default async function Home(props: { params: Promise<{ lang: string }> })
     knowsLanguage: ["en", "es"],
     knowsAbout: ["AI integrations", "Automation", "Web development", "Mobile development", "3D & motion"],
     email: EMAIL,
+    sameAs: [GITHUB_URL, LINKEDIN_URL, FACEBOOK_URL],
   };
 
   return (

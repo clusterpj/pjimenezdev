@@ -260,6 +260,12 @@ const en = {
     email: "Email", github: "GitHub",
     copyright: "© 2026 Pedro Jimenez · Built with the same AI layer I ship for clients.",
   },
+  notFound: {
+    eyebrow: "// 404",
+    title: "This page doesn't exist.",
+    message: "The work does, though — eight shipped projects, all in production.",
+    ctaHome: "Back to home", ctaWork: "See the work",
+  },
   home: {
     metaTitle: "Pedro Jimenez — I build the AI layer your product is missing | Full-stack + AI developer, Santiago DO",
     metaDesc: "Solo full-stack & AI developer in Santiago, Dominican Republic. AI integrations, automations, web & mobile apps — shipped, not demoed. Ask the site anything.",
@@ -419,6 +425,12 @@ const es: typeof en = {
     tagline: "Desarrollador full-stack e IA · Santiago, República Dominicana",
     email: "Email", github: "GitHub",
     copyright: "© 2026 Pedro Jimenez · Construido con la misma capa de IA que entrego a mis clientes.",
+  },
+  notFound: {
+    eyebrow: "// 404",
+    title: "Esta página no existe.",
+    message: "El trabajo sí — ocho proyectos entregados, todos en producción.",
+    ctaHome: "Volver al inicio", ctaWork: "Ver los proyectos",
   },
   home: {
     metaTitle: "Pedro Jimenez — Construyo la capa de IA que le falta a tu producto | Desarrollador full-stack + IA, Santiago RD",

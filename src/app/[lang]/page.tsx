@@ -86,8 +86,19 @@ export default async function Home(props: { params: Promise<{ lang: string }> })
             <Link key={p.id} data-card href={`${pre}/work/${p.id}`} style={{
               display: "flex", flexDirection: "column", background: "var(--bg-surface)",
               border: "1px solid var(--border)", borderRadius: "var(--radius-lg)",
-              boxShadow: "var(--shadow-md)", padding: 24, textDecoration: "none",
+              boxShadow: "var(--shadow-md)", overflow: "hidden", textDecoration: "none",
             }}>
+              {p.image && (
+                // eslint-disable-next-line @next/next/no-img-element -- external client-site photo, no optimizer on Workers
+                <img
+                  src={p.image}
+                  alt=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                  style={{ width: "100%", aspectRatio: "16/10", objectFit: "cover", display: "block", borderBottom: "1px solid var(--border)" }}
+                />
+              )}
+              <div style={{ padding: 24, display: "flex", flexDirection: "column", flex: 1 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 14, marginBottom: 14 }}>
                 <h3 style={{ font: "600 21px var(--font-display), sans-serif", letterSpacing: "-.01em", color: "#fff", margin: 0 }}>{p.name}</h3>
                 <span style={{ font: "500 11px var(--font-mono), monospace", color: "var(--text-muted)", letterSpacing: ".06em", flexShrink: 0, paddingTop: 4 }}>{p.year}</span>
@@ -95,6 +106,7 @@ export default async function Home(props: { params: Promise<{ lang: string }> })
               <p style={{ font: "400 14px/1.65 var(--font-body), sans-serif", color: "var(--text-body)", margin: "0 0 18px", flex: 1 }}>{p.desc}</p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
                 {p.tags.map((tag) => <span key={tag} style={tagStyle}>{tag}</span>)}
+              </div>
               </div>
             </Link>
           ))}

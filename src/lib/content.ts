@@ -27,6 +27,11 @@ export interface Project {
   build: string;
   points: string[];
   outcome: string;
+  /** Optional hero/thumbnail image. Live projects: hotlinked from the
+   *  production site itself (Pedro built it, so it's fair use as proof of
+   *  work) — swap for a self-hosted copy under /public/images/work/ once
+   *  available. Omit entirely for projects with no image yet. */
+  image?: string;
 }
 
 const projectsEn: Project[] = [
@@ -55,6 +60,7 @@ const projectsEn: Project[] = [
       "Deleted listings return a real HTTP 410, not a 200 with a \"Property Not Found\" title — the soft-404 pattern Google explicitly penalizes. Property pages statically rendered with hourly revalidation: edge-cacheable but never more than an hour stale on price. Meta Pixel and Conversions API fire on every property view tied to the actual catalog listing ID, so retargeting ads match real inventory.",
     ],
     outcome: "Live at c21perdomo.com — a multilingual real estate site that shows up in search across all four language markets, on top of a legacy CMS backend that was never built for headless use. The hard part wasn't translation strings; it was making sure Google understood every page across every locale.",
+    image: "https://c21perdomo.com/images/hero/optimized/hero-1.webp",
   },
   {
     id: "moneyguard", name: "MoneyGuard", year: "2025", category: "Mobile · AI", cats: ["Mobile", "AI"],
@@ -81,6 +87,7 @@ const projectsEn: Project[] = [
       "AI-automated bilingual translations: edit a listing once, publish in both languages.",
     ],
     outcome: "In production for the Cabarete business — direct bookings with zero double-booking incidents and listings maintained in one place instead of six.",
+    image: "https://www.cabaretevillas.com/lifestyle-hero.jpg",
   },
   {
     id: "ruleta", name: "Ruleta", year: "2025", category: "Mobile app", cats: ["Mobile"],
@@ -162,6 +169,7 @@ const projectsEs: Project[] = [
       "Los listados eliminados devuelven un HTTP 410 real, no un 200 con título \"Propiedad no encontrada\" — el patrón soft-404 que Google penaliza explícitamente. Páginas de propiedad renderizadas estáticamente con revalidación horaria: cacheables en el edge pero nunca más de una hora desactualizadas. Meta Pixel y Conversions API disparan en cada vista de propiedad vinculada al ID real del catálogo, para que los anuncios de retargeting apunten a inventario real.",
     ],
     outcome: "En producción en c21perdomo.com — un sitio inmobiliario multilingüe que aparece en búsquedas en sus cuatro mercados de idioma, sobre un CMS legacy que nunca fue construido para funcionar sin CMS acoplado. Lo difícil no fueron las traducciones; fue asegurarse de que Google entendiera cada página en cada idioma.",
+    image: "https://c21perdomo.com/images/hero/optimized/hero-1.webp",
   },
   {
     id: "moneyguard", name: "MoneyGuard", year: "2025", category: "Móvil · IA", cats: ["Mobile", "AI"],
@@ -188,6 +196,7 @@ const projectsEs: Project[] = [
       "Traducciones bilingües automatizadas con IA: editas el listado una vez, se publica en ambos idiomas.",
     ],
     outcome: "En producción para el negocio de Cabarete — reservas directas con cero incidentes de doble reserva y listados mantenidos en un solo lugar en vez de seis.",
+    image: "https://www.cabaretevillas.com/lifestyle-hero.jpg",
   },
   {
     id: "ruleta", name: "Ruleta", year: "2025", category: "App móvil", cats: ["Mobile"],

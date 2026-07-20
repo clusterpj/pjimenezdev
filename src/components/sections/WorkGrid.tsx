@@ -50,9 +50,20 @@ export function WorkGrid({ lang }: { lang: Lang }) {
             <Link key={p.id} data-card href={`${pre}/work/${p.id}`} style={{
               display: "flex", flexDirection: "column", background: "var(--bg-surface)",
               border: "1px solid var(--border)", borderRadius: "var(--radius-lg)",
-              boxShadow: "var(--shadow-md)", padding: 24, textDecoration: "none",
+              boxShadow: "var(--shadow-md)", overflow: "hidden", textDecoration: "none",
               scrollMarginTop: 90,
             }}>
+              {p.image && (
+                // eslint-disable-next-line @next/next/no-img-element -- external client-site photo, no optimizer on Workers
+                <img
+                  src={p.image}
+                  alt=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                  style={{ width: "100%", aspectRatio: "16/10", objectFit: "cover", display: "block", borderBottom: "1px solid var(--border)" }}
+                />
+              )}
+              <div style={{ padding: 24, display: "flex", flexDirection: "column", flex: 1 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 14, marginBottom: 6 }}>
                 <h2 style={{ font: "600 21px var(--font-display), sans-serif", letterSpacing: "-.01em", color: "#fff", margin: 0 }}>{p.name}</h2>
                 <span style={{ font: "500 11px var(--font-mono), monospace", color: "var(--text-muted)", letterSpacing: ".06em", flexShrink: 0, paddingTop: 4 }}>{p.year}</span>
@@ -78,6 +89,7 @@ export function WorkGrid({ lang }: { lang: Lang }) {
               <span style={{ font: "600 13px var(--font-body), sans-serif", color: "var(--accent)", display: "inline-flex", alignItems: "center", gap: 6 }}>
                 {t.readCaseStudy} <span style={{ fontFamily: "var(--font-mono)" }}>→</span>
               </span>
+              </div>
             </Link>
           ))}
         </div>

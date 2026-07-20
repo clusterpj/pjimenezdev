@@ -3,6 +3,7 @@
 import React from "react";
 import { type Lang, getDict } from "@/lib/content";
 import { sessionContext, bumpInteraction, trackChip } from "@/lib/session";
+import { trackEvent } from "@/lib/gtag";
 
 export type AiState = "idle" | "processing" | "responding";
 export type ConciergeMode = "home" | "contact";
@@ -23,6 +24,7 @@ export function useConciergeChat(mode: ConciergeMode, lang: Lang, greeting?: str
   const [sending, setSending] = React.useState(false);
   const idleTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const currentPage = React.useRef<string>("");
+  const startedRef = React.useRef(false);
 
   React.useEffect(() => {
     currentPage.current = window.location.pathname;
@@ -40,6 +42,10 @@ export function useConciergeChat(mode: ConciergeMode, lang: Lang, greeting?: str
     clearTimeout(idleTimer.current);
     bumpInteraction();
     if (isChip) trackChip(text);
+    if (!startedRef.current) {
+      startedRef.current = true;
+      trackEvent("concierge_start", { mode, is_chip: isChip });
+    }
 
     const history = [...messages, { role: "user" as const, content: q }].map((m) => ({
       role: m.role === "ai" ? ("assistant" as const) : ("user" as const),
@@ -137,6 +143,10 @@ export function ConciergeSurface({
     const el = threadRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages]);
+
+  React.useEffect(() => {
+    if (scope === "sent") trackEvent("generate_lead", { mode, method: "concierge" });
+  }, [scope, mode]);
 
   // Detect email addresses the visitor types into the chat itself.
   // When the agent asks for an email and the visitor replies with one,

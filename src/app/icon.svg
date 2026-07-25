@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="7" fill="#08080f"/>
+  <text x="16" y="22" text-anchor="middle" font-family="Space Grotesk, system-ui, -apple-system, sans-serif" font-weight="700" font-size="18">
+    <tspan fill="#FFB23E">[</tspan><tspan fill="#ffffff">pj</tspan><tspan fill="#FFB23E">]</tspan>
+  </text>
+</svg>

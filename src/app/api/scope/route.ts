@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { EMAIL } from "@/lib/content";
 import { getProvider } from "@/lib/ai";
 import { rateLimited } from "@/lib/rate-limit";
+import { getEnv } from "@/lib/env";
 
 const RESEND = "https://api.resend.com/emails";
 
@@ -52,7 +53,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: "At least a question and reply are required" }, { status: 400 });
     }
 
-    const apiKey = process.env.RESEND_API_KEY;
+    const apiKey = getEnv("RESEND_API_KEY");
     if (!apiKey) {
       console.error("[/api/scope] RESEND_API_KEY not set");
       return NextResponse.json({ error: "Email not configured" }, { status: 500 });

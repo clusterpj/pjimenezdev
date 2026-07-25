@@ -1,10 +1,11 @@
 import type { AIProvider, ChatMessage } from '../types';
+import { getEnv } from '@/lib/env';
 
 const ENDPOINT = 'https://api.deepseek.com/v1/chat/completions';
 const MODEL = 'deepseek-chat';
 
 function getKey(): string {
-  const key = process.env.DEEPSEEK_API_KEY;
+  const key = getEnv('DEEPSEEK_API_KEY');
   if (!key) throw new Error('DEEPSEEK_API_KEY is not set');
   return key;
 }

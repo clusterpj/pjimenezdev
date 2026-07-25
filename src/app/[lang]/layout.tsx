@@ -30,6 +30,14 @@ const jetbrainsMono = localFont({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  icons: {
+    icon: [
+      { url: "/assets/logos/favicon.svg", type: "image/svg+xml" },
+      { url: "/assets/logos/icon.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/assets/logos/favicon.svg",
+    apple: "/apple-icon.png",
+  },
   other: {
     "facebook-domain-verification": "unjmj69cgycb6mazblh1s7pg1wiicm",
   },

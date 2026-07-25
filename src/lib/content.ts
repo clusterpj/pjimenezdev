@@ -27,11 +27,14 @@ export interface Project {
   build: string;
   points: string[];
   outcome: string;
-  /** Optional hero/thumbnail image. Live projects: hotlinked from the
-   *  production site itself (Pedro built it, so it's fair use as proof of
-   *  work) — swap for a self-hosted copy under /public/images/work/ once
-   *  available. Omit entirely for projects with no image yet. */
+  /** Card thumbnail + case-study hero + og:image. Live projects: hotlinked
+   *  from the production site itself (Pedro built it, so it's fair use as
+   *  proof of work) — swap for a self-hosted copy under
+   *  /public/images/work/{slug}/ once available. Omit for no image yet. */
   image?: string;
+  /** Additional UI screenshots shown as a gallery on the case study page
+   *  only (not on cards). Local paths under /public/images/work/{slug}/. */
+  gallery?: string[];
 }
 
 const projectsEn: Project[] = [
@@ -47,6 +50,8 @@ const projectsEn: Project[] = [
       "Proactive tool-calling across 13+ backend actions — log an extraction, cross-check allergies, draft the prescription and SOAP note — without being asked twice; voice calls escalate to an AI agent via Vapi when a patient prefers to call instead of message.",
     ],
     outcome: "Natural-language observations become structured medical data — SOAP notes, treatment plans, phased budgets, odontograms — cutting the administrative load so the dentist stays focused on the patient, not the keyboard.",
+    image: "/images/work/melow/analytics.png",
+    gallery: ["/images/work/melow/odontogram.jpg", "/images/work/melow/patients-module.jpg"],
   },
   {
     id: "c21-perdomo", name: "C21 Perdomo", year: "2026", category: "Web app", cats: ["Web"],
@@ -60,7 +65,8 @@ const projectsEn: Project[] = [
       "Deleted listings return a real HTTP 410, not a 200 with a \"Property Not Found\" title — the soft-404 pattern Google explicitly penalizes. Property pages statically rendered with hourly revalidation: edge-cacheable but never more than an hour stale on price. Meta Pixel and Conversions API fire on every property view tied to the actual catalog listing ID, so retargeting ads match real inventory.",
     ],
     outcome: "Live at c21perdomo.com — a multilingual real estate site that shows up in search across all four language markets, on top of a legacy CMS backend that was never built for headless use. The hard part wasn't translation strings; it was making sure Google understood every page across every locale.",
-    image: "https://c21perdomo.com/images/hero/optimized/hero-1.webp",
+    image: "/images/work/c21-perdomo/home.png",
+    gallery: ["/images/work/c21-perdomo/banner.png", "/images/work/c21-perdomo/featured.png", "/images/work/c21-perdomo/blog.png"],
   },
   {
     id: "moneyguard", name: "MoneyGuard", year: "2025", category: "Mobile · AI", cats: ["Mobile", "AI"],
@@ -74,6 +80,8 @@ const projectsEn: Project[] = [
       "Offline-first Flutter app with a FastAPI + DeepSeek backend for the decision layer.",
     ],
     outcome: "Shipped for the Dominican market: an app that argues with you at the moment of purchase, not a spreadsheet that shames you at the end of the month.",
+    image: "/images/work/moneyguard/home.png",
+    gallery: ["/images/work/moneyguard/ai-agent.png", "/images/work/moneyguard/ai-agent1.png", "/images/work/moneyguard/quickadd1.png", "/images/work/moneyguard/quickadd2.png", "/images/work/moneyguard/edit-budget.png"],
   },
   {
     id: "cabarete-villas", name: "Cabarete Villas", year: "2025", category: "Web app", cats: ["Web"],
@@ -87,7 +95,8 @@ const projectsEn: Project[] = [
       "AI-automated bilingual translations: edit a listing once, publish in both languages.",
     ],
     outcome: "In production for the Cabarete business — direct bookings with zero double-booking incidents and listings maintained in one place instead of six.",
-    image: "https://www.cabaretevillas.com/lifestyle-hero.jpg",
+    image: "/images/work/cabarete-villas/featured.png",
+    gallery: ["/images/work/cabarete-villas/home.png", "/images/work/cabarete-villas/property.png"],
   },
   {
     id: "ruleta", name: "Ruleta", year: "2025", category: "Mobile app", cats: ["Mobile"],
@@ -101,6 +110,8 @@ const projectsEn: Project[] = [
       "Full theme customization so the wheel wears the brand, not mine. Hive storage keeps it fully offline.",
     ],
     outcome: "Used at live events and activations — spins, prizes, and participant data captured with or without a connection.",
+    image: "/images/work/ruleta/home.png",
+    gallery: ["/images/work/ruleta/ruleta.png", "/images/work/ruleta/admin.png", "/images/work/ruleta/win.png", "/images/work/ruleta/perfil2.png", "/images/work/ruleta/perfiles.png"],
   },
   {
     id: "luxedrive", name: "LuxeDrive", year: "2024", category: "Web · SaaS", cats: ["Web", "SaaS"],
@@ -114,32 +125,6 @@ const projectsEn: Project[] = [
       "Role-based admin controls with NextAuth — owners, agents, and staff see exactly what they should.",
     ],
     outcome: "In production as a multi-tenant platform — agencies onboard with their own fleet, branding, and staff roles from day one.",
-  },
-  {
-    id: "social-command", name: "Social Command Center", year: "2024", category: "Automation · AI", cats: ["Automation", "AI"],
-    tags: ["Automation", "AI integration", "Bun", "Claude", "fal.ai"],
-    desc: "Telegram bot that generates AI copy and images then publishes directly to Instagram, LinkedIn, Facebook, and X — from a single chat interface.",
-    problem: "Posting consistently across Instagram, LinkedIn, Facebook, and X means four editors, four formats, four logins — so most small teams simply stop posting.",
-    build: "The entire pipeline collapsed into one chat.",
-    points: [
-      "Telegram as the interface: describe the post, approve the draft, done.",
-      "Claude generates platform-tuned copy; fal.ai generates the imagery.",
-      "Direct publishing to all four platforms from a single Bun service.",
-    ],
-    outcome: "One chat message becomes four platform-native posts — the social presence runs from a phone.",
-  },
-  {
-    id: "seo-blog", name: "SEO Blog Generator", year: "2024", category: "AI integration", cats: ["AI"],
-    tags: ["AI integration", "Flask", "Python", "Ollama", "spaCy"],
-    desc: "Content platform that generates SEO-optimized blog posts using local LLMs — keyword analysis, readability scoring, and a built-in content manager.",
-    problem: "Content agencies burn hours per article and per-token API costs add up at volume. For SEO content, the bottleneck is structure and keyword discipline more than prose genius.",
-    build: "A generation platform that runs on local models — zero per-article API cost.",
-    points: [
-      "Ollama-served local LLMs generate drafts; spaCy handles keyword analysis and extraction.",
-      "Readability scoring keeps output within target reading levels.",
-      "Built-in content manager for review, edits, and publishing workflow.",
-    ],
-    outcome: "A working content pipeline where the marginal cost of an article is electricity — keyword-disciplined drafts arrive ready for human polish.",
   },
 ];
 
@@ -156,6 +141,8 @@ const projectsEs: Project[] = [
       "Ejecución proactiva de herramientas entre más de 13 acciones del backend — registrar una extracción, cruzar alergias, redactar la receta y la nota SOAP — sin que se lo pidan dos veces; las llamadas escalan a un agente de voz por IA vía Vapi cuando el paciente prefiere llamar en vez de escribir.",
     ],
     outcome: "Las observaciones en lenguaje natural se convierten en datos médicos estructurados — notas SOAP, planes de tratamiento, presupuestos por fases, odontogramas — reduciendo la carga administrativa para que el dentista se enfoque en el paciente, no en el teclado.",
+    image: "/images/work/melow/analytics.png",
+    gallery: ["/images/work/melow/odontogram.jpg", "/images/work/melow/patients-module.jpg"],
   },
   {
     id: "c21-perdomo", name: "C21 Perdomo", year: "2026", category: "Web app", cats: ["Web"],
@@ -169,7 +156,8 @@ const projectsEs: Project[] = [
       "Los listados eliminados devuelven un HTTP 410 real, no un 200 con título \"Propiedad no encontrada\" — el patrón soft-404 que Google penaliza explícitamente. Páginas de propiedad renderizadas estáticamente con revalidación horaria: cacheables en el edge pero nunca más de una hora desactualizadas. Meta Pixel y Conversions API disparan en cada vista de propiedad vinculada al ID real del catálogo, para que los anuncios de retargeting apunten a inventario real.",
     ],
     outcome: "En producción en c21perdomo.com — un sitio inmobiliario multilingüe que aparece en búsquedas en sus cuatro mercados de idioma, sobre un CMS legacy que nunca fue construido para funcionar sin CMS acoplado. Lo difícil no fueron las traducciones; fue asegurarse de que Google entendiera cada página en cada idioma.",
-    image: "https://c21perdomo.com/images/hero/optimized/hero-1.webp",
+    image: "/images/work/c21-perdomo/home.png",
+    gallery: ["/images/work/c21-perdomo/banner.png", "/images/work/c21-perdomo/featured.png", "/images/work/c21-perdomo/blog.png"],
   },
   {
     id: "moneyguard", name: "MoneyGuard", year: "2025", category: "Móvil · IA", cats: ["Mobile", "AI"],
@@ -183,6 +171,8 @@ const projectsEs: Project[] = [
       "App Flutter offline-first con backend FastAPI + DeepSeek para la capa de decisión.",
     ],
     outcome: "Publicada para el mercado dominicano: una app que discute contigo en el momento de la compra, no una hoja de cálculo que te regaña a fin de mes.",
+    image: "/images/work/moneyguard/home.png",
+    gallery: ["/images/work/moneyguard/ai-agent.png", "/images/work/moneyguard/ai-agent1.png", "/images/work/moneyguard/quickadd1.png", "/images/work/moneyguard/quickadd2.png", "/images/work/moneyguard/edit-budget.png"],
   },
   {
     id: "cabarete-villas", name: "Cabarete Villas", year: "2025", category: "Web app", cats: ["Web"],
@@ -196,7 +186,8 @@ const projectsEs: Project[] = [
       "Traducciones bilingües automatizadas con IA: editas el listado una vez, se publica en ambos idiomas.",
     ],
     outcome: "En producción para el negocio de Cabarete — reservas directas con cero incidentes de doble reserva y listados mantenidos en un solo lugar en vez de seis.",
-    image: "https://www.cabaretevillas.com/lifestyle-hero.jpg",
+    image: "/images/work/cabarete-villas/featured.png",
+    gallery: ["/images/work/cabarete-villas/home.png", "/images/work/cabarete-villas/property.png"],
   },
   {
     id: "ruleta", name: "Ruleta", year: "2025", category: "App móvil", cats: ["Mobile"],
@@ -210,6 +201,8 @@ const projectsEs: Project[] = [
       "Personalización total de tema para que la ruleta vista la marca del cliente, no la mía. Almacenamiento en Hive la mantiene completamente offline.",
     ],
     outcome: "Usada en eventos y activaciones en vivo — giros, premios y datos de participantes capturados con o sin conexión.",
+    image: "/images/work/ruleta/home.png",
+    gallery: ["/images/work/ruleta/ruleta.png", "/images/work/ruleta/admin.png", "/images/work/ruleta/win.png", "/images/work/ruleta/perfil2.png", "/images/work/ruleta/perfiles.png"],
   },
   {
     id: "luxedrive", name: "LuxeDrive", year: "2024", category: "Web · SaaS", cats: ["Web", "SaaS"],
@@ -223,32 +216,6 @@ const projectsEs: Project[] = [
       "Controles de administración por rol con NextAuth — dueños, agentes y personal ven exactamente lo que deben.",
     ],
     outcome: "En producción como plataforma multi-tenant — las agencias entran con su propia flota, marca y roles de personal desde el día uno.",
-  },
-  {
-    id: "social-command", name: "Social Command Center", year: "2024", category: "Automatización · IA", cats: ["Automation", "AI"],
-    tags: ["Automatización", "Integración IA", "Bun", "Claude", "fal.ai"],
-    desc: "Bot de Telegram que genera textos e imágenes con IA y publica directo en Instagram, LinkedIn, Facebook y X — desde una sola interfaz de chat.",
-    problem: "Publicar con constancia en Instagram, LinkedIn, Facebook y X significa cuatro editores, cuatro formatos, cuatro sesiones — así que la mayoría de los equipos pequeños simplemente dejan de publicar.",
-    build: "Todo el pipeline colapsado en un solo chat.",
-    points: [
-      "Telegram como interfaz: describes la publicación, apruebas el borrador, listo.",
-      "Claude genera el texto afinado por plataforma; fal.ai genera las imágenes.",
-      "Publicación directa a las cuatro plataformas desde un solo servicio en Bun.",
-    ],
-    outcome: "Un mensaje de chat se convierte en cuatro publicaciones nativas por plataforma — la presencia social se maneja desde el teléfono.",
-  },
-  {
-    id: "seo-blog", name: "SEO Blog Generator", year: "2024", category: "Integración IA", cats: ["AI"],
-    tags: ["Integración IA", "Flask", "Python", "Ollama", "spaCy"],
-    desc: "Plataforma de contenido que genera artículos de blog optimizados para SEO usando LLMs locales — análisis de keywords, puntuación de legibilidad y gestor de contenido integrado.",
-    problem: "Las agencias de contenido queman horas por artículo y los costos de API por token se acumulan a volumen. Para contenido SEO, el cuello de botella es la estructura y la disciplina de keywords más que el genio de la prosa.",
-    build: "Una plataforma de generación que corre sobre modelos locales — costo de API por artículo: cero.",
-    points: [
-      "LLMs locales servidos con Ollama generan los borradores; spaCy maneja el análisis y extracción de keywords.",
-      "Puntuación de legibilidad mantiene el contenido dentro del nivel de lectura objetivo.",
-      "Gestor de contenido integrado para revisión, ediciones y flujo de publicación.",
-    ],
-    outcome: "Un pipeline de contenido funcional donde el costo marginal de un artículo es la electricidad — borradores disciplinados en keywords listos para el pulido humano.",
   },
 ];
 
@@ -358,7 +325,7 @@ const en = {
     sub: "No handoffs, no account managers, no agency markup. You talk to the person writing the code — and it ships in weeks, not quarters.",
     cards: [
       { title: "AI integrations", icon: "AI", desc: "RAG over your documents, AI agents, chat that knows your business, clinical-note generation — wired into your product, not bolted on. If the model needs your data to be useful, this is the work.", tools: ["DeepSeek", "Claude", "Ollama", "RAG", "LangChain"], cta: "See Melow", href: "/work/melow" },
-      { title: "Automations", icon: "</>", desc: "Bots and pipelines that do the boring work: WhatsApp and Telegram bots, social publishing, data reconciliation, report generation. If your team does it weekly by hand, it can probably run itself.", tools: ["WhatsApp API", "Telegram", "Bun", "n8n"], cta: "See Social Command Center", href: "/work/social-command" },
+      { title: "Automations", icon: "</>", desc: "Bots and pipelines that do the boring work: WhatsApp and Telegram bots, social publishing, data reconciliation, report generation. If your team does it weekly by hand, it can probably run itself.", tools: ["WhatsApp API", "Telegram", "Bun", "n8n"], cta: "Ask about automations", href: `mailto:${EMAIL}` },
       { title: "Web apps", icon: "{ }", desc: "Next.js front to back — multilingual, SEO-tuned, statically fast, with server-side analytics that feed your ad algorithms real conversions. Headless CMS when your team needs to edit content themselves.", tools: ["Next.js", "WordPress", "Firebase", "GA4", "Meta CAPI"], cta: "See C21 Perdomo", href: "/work/c21-perdomo" },
       { title: "Mobile apps", icon: "[ ]", desc: "Flutter apps that ship to both stores from one codebase. Offline-first for markets where connectivity isn't a given, OCR, payments, and AI features that work on-device and off.", tools: ["Flutter", "FastAPI", "Hive", "OCR"], cta: "See MoneyGuard", href: "/work/moneyguard" },
       { title: "SaaS platforms", icon: "##", desc: "Multi-tenant from day one: auth, roles, billing, admin dashboards, tenant isolation. The architecture decisions that are expensive to retrofit, made correctly at the start.", tools: ["Next.js", "MongoDB", "NextAuth", "Node.js"], cta: "See LuxeDrive", href: "/work/luxedrive" },
@@ -524,7 +491,7 @@ const es: typeof en = {
     sub: "Sin intermediarios, sin ejecutivos de cuenta, sin el recargo de agencia. Hablas con la persona que escribe el código — y se entrega en semanas, no en trimestres.",
     cards: [
       { title: "Integraciones de IA", icon: "AI", desc: "RAG sobre tus documentos, agentes de IA, chat que conoce tu negocio, generación de notas clínicas — integrados a tu producto, no pegados encima. Si el modelo necesita tus datos para ser útil, este es el trabajo.", tools: ["DeepSeek", "Claude", "Ollama", "RAG", "LangChain"], cta: "Ver Melow", href: "/work/melow" },
-      { title: "Automatizaciones", icon: "</>", desc: "Bots y pipelines que hacen el trabajo aburrido: bots de WhatsApp y Telegram, publicación en redes, conciliación de datos, generación de reportes. Si tu equipo lo hace a mano cada semana, probablemente puede correr solo.", tools: ["WhatsApp API", "Telegram", "Bun", "n8n"], cta: "Ver Social Command Center", href: "/work/social-command" },
+      { title: "Automatizaciones", icon: "</>", desc: "Bots y pipelines que hacen el trabajo aburrido: bots de WhatsApp y Telegram, publicación en redes, conciliación de datos, generación de reportes. Si tu equipo lo hace a mano cada semana, probablemente puede correr solo.", tools: ["WhatsApp API", "Telegram", "Bun", "n8n"], cta: "Pregunta por automatizaciones", href: `mailto:${EMAIL}` },
       { title: "Apps web", icon: "{ }", desc: "Next.js de punta a punta — multilingüe, afinado para SEO, estáticamente rápido, con analítica server-side que alimenta tus algoritmos de anuncios con conversiones reales. CMS headless cuando tu equipo necesita editar contenido por su cuenta.", tools: ["Next.js", "WordPress", "Firebase", "GA4", "Meta CAPI"], cta: "Ver C21 Perdomo", href: "/work/c21-perdomo" },
       { title: "Apps móviles", icon: "[ ]", desc: "Apps Flutter que llegan a ambas tiendas desde un solo código. Offline-first para mercados donde la conectividad no está garantizada, OCR, pagos y funciones de IA que trabajan con y sin conexión.", tools: ["Flutter", "FastAPI", "Hive", "OCR"], cta: "Ver MoneyGuard", href: "/work/moneyguard" },
       { title: "Plataformas SaaS", icon: "##", desc: "Multi-tenant desde el día uno: autenticación, roles, cobros, paneles de administración, aislamiento de tenants. Las decisiones de arquitectura que cuestan caro corregir después, tomadas bien desde el principio.", tools: ["Next.js", "MongoDB", "NextAuth", "Node.js"], cta: "Ver LuxeDrive", href: "/work/luxedrive" },

@@ -109,6 +109,29 @@ export default async function CaseStudy(props: { params: Promise<{ lang: string;
         </section>
       )}
 
+      {p.gallery && p.gallery.length > 0 && (
+        <section style={{ maxWidth: 1100, margin: "0 auto", padding: "0 clamp(20px,5vw,48px) clamp(56px,8vw,88px)" }}>
+          <div style={{
+            display: "grid", gap: 16,
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 340px), 1fr))",
+          }}>
+            {p.gallery.map((src, i) => (
+              // eslint-disable-next-line @next/next/no-img-element -- static screenshot, no optimizer on Workers
+              <img
+                key={src}
+                src={src}
+                alt={`${p.name} — ${t.shipped} ${i + 1}`}
+                loading="lazy"
+                style={{
+                  width: "100%", aspectRatio: "4/3", objectFit: "cover", display: "block",
+                  borderRadius: "var(--radius-lg)", border: "1px solid var(--border)", boxShadow: "var(--shadow-md)",
+                }}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* ══ BODY ══ */}
       <section style={{ maxWidth: 1100, margin: "0 auto", padding: "0 clamp(20px,5vw,48px) clamp(56px,8vw,96px)" }}>
         <div className="grid-cs">

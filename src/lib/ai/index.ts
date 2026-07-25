@@ -1,5 +1,6 @@
 import type { AIProvider, ProviderName } from './types';
 import { DeepSeekProvider } from './providers/deepseek';
+import { getEnv } from '@/lib/env';
 
 export type { AIProvider, ChatMessage, ProviderName } from './types';
 
@@ -8,7 +9,7 @@ let _provider: AIProvider | null = null;
 export function getProvider(): AIProvider {
   if (_provider) return _provider;
 
-  const name = (process.env.AI_PROVIDER ?? 'deepseek') as ProviderName;
+  const name = (getEnv('AI_PROVIDER') ?? 'deepseek') as ProviderName;
 
   switch (name) {
     case 'deepseek':

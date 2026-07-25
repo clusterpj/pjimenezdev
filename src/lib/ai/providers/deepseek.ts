@@ -2,7 +2,10 @@ import type { AIProvider, ChatMessage } from '../types';
 import { getEnv } from '@/lib/env';
 
 const ENDPOINT = 'https://api.deepseek.com/v1/chat/completions';
-const MODEL = 'deepseek-chat';
+
+function getModel(): string {
+  return getEnv('DEEPSEEK_MODEL') ?? 'deepseek-v4-flash';
+}
 
 function getKey(): string {
   const key = getEnv('DEEPSEEK_API_KEY');
@@ -18,7 +21,7 @@ export class DeepSeekProvider implements AIProvider {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${getKey()}`,
       },
-      body: JSON.stringify({ model: MODEL, messages, stream: false, max_tokens: 500 }),
+      body: JSON.stringify({ model: getModel(), messages, stream: false, max_tokens: 500 }),
     });
 
     if (!res.ok) {
@@ -39,7 +42,7 @@ export class DeepSeekProvider implements AIProvider {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${getKey()}`,
       },
-      body: JSON.stringify({ model: MODEL, messages, stream: true, max_tokens: 500 }),
+      body: JSON.stringify({ model: getModel(), messages, stream: true, max_tokens: 500 }),
     });
 
     if (!res.ok) {

@@ -23,7 +23,7 @@ export async function generateMetadata(props: { params: Promise<{ lang: string; 
     openGraph: {
       type: "article", title: t.metaTitle(p.name), description: p.desc,
       url: `${SITE_URL}${langPrefix(lang)}/work/${p.id}`,
-      images: [{ url: p.image || "/images/og/home.png", width: 1200, height: 630 }],
+      images: [{ url: p.image || "/images/og/home.jpg", width: 1200, height: 630 }],
     },
   };
 }

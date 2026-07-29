@@ -12,7 +12,7 @@ export async function generateMetadata(props: { params: Promise<{ lang: string }
     openGraph: {
       type: "profile", title: t.metaTitle, description: t.metaDesc,
       url: `${SITE_URL}${langPrefix(lang)}/about`,
-      images: [{ url: "/images/og/about.png", width: 1200, height: 630 }],
+      images: [{ url: "/images/og/about.jpg", width: 1200, height: 630 }],
     },
   };
 }

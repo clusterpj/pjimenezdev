@@ -17,7 +17,7 @@ export async function generateMetadata(props: { params: Promise<{ lang: string }
       title: t.metaTitle,
       description: t.metaDesc,
       url: `${SITE_URL}${langPrefix(lang)}/`,
-      images: [{ url: "/images/og/home.png", width: 1200, height: 630 }],
+      images: [{ url: "/images/og/home.jpg", width: 1200, height: 630 }],
     },
     twitter: { card: "summary_large_image" },
   };

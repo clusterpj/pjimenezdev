@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
 import "../globals.css";
 import { Nav } from "@/components/layout/Nav";
 import { Footer } from "@/components/layout/Footer";
@@ -7,24 +7,24 @@ import { PageTracker } from "@/components/PageTracker";
 import { Analytics } from "@/components/Analytics";
 import { SITE_URL, asLang, langs } from "@/lib/content";
 
-const spaceGrotesk = localFont({
-  src: "../fonts/SpaceGrotesk-VariableFont_wght.ttf",
+// Self-hosted by next/font at build time — subsetted WOFF2, no Google request at
+// runtime. latin-ext is required for the ES copy (á é í ó ú ñ ü).
+// next/font only accepts literal options, so the subset list is repeated.
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin", "latin-ext"],
   variable: "--font-display",
-  weight: "300 700",
   display: "swap",
 });
 
-const inter = localFont({
-  src: "../fonts/Inter-VariableFont.ttf",
+const inter = Inter({
+  subsets: ["latin", "latin-ext"],
   variable: "--font-body",
-  weight: "100 900",
   display: "swap",
 });
 
-const jetbrainsMono = localFont({
-  src: "../fonts/JetBrainsMono-VariableFont_wght.ttf",
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin", "latin-ext"],
   variable: "--font-mono",
-  weight: "100 800",
   display: "swap",
 });
 

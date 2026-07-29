@@ -151,38 +151,45 @@ export function ConciergeSurface({
   // Detect email addresses the visitor types into the chat itself.
   // When the agent asks for an email and the visitor replies with one,
   // auto-populate the capture bar and trigger the send.
+  //
+  // Gated on `sending` rather than a setTimeout: every streamed token is a new
+  // `messages` value, so a timer armed here was cleared by the effect cleanup on
+  // the very next chunk and — with sentRef already latched — never re-armed.
+  // That silently dropped leads. Waiting for the stream to finish also means the
+  // transcript we send includes the agent's closing reply.
   const sentRef = React.useRef(false);
   React.useEffect(() => {
-    if (scope === "sending" || scope === "sent" || sentRef.current) return;
+    if (sending || sentRef.current || scope === "sending" || scope === "sent") return;
     const last = messages.filter((m) => m.role === "user").at(-1);
-    if (!last) return;
-    const match = last.content.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
-    if (match) {
-      sentRef.current = true;
-      const addr = match[1];
-      // Let the agent's confirmation message render, then populate + fire
-      const timer = setTimeout(async () => {
-        setEmail(addr);
-        setScope("sending");
-        try {
-          const res = await fetch("/api/scope", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ messages, email: addr, lang }),
-          });
-          if (!res.ok) throw new Error(await res.json().then((d) => d.error).catch(() => "fail"));
-          setScope("sent");
-        } catch {
-          setScope("error");
-          sentRef.current = false;
-        }
-      }, 800);
-      return () => clearTimeout(timer);
-    }
-  }, [messages, scope, lang]);
+    const match = last?.content.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+    if (!match) return;
+
+    const addr = match[1];
+    sentRef.current = true;
+    // All state updates live inside the async body — setting them synchronously
+    // here would cascade a re-render out of the effect.
+    (async () => {
+      setEmail(addr);
+      setScope("sending");
+      try {
+        const res = await fetch("/api/scope", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages, email: addr, lang }),
+        });
+        if (!res.ok) throw new Error(await res.json().then((d) => d.error).catch(() => "fail"));
+        setScope("sent");
+      } catch {
+        setScope("error");
+        sentRef.current = false;
+      }
+    })();
+  }, [messages, sending, scope, lang]);
+
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 
   const sendScope = async () => {
-    if (!email.trim() || scope === "sending" || scope === "sent") return;
+    if (!emailValid || scope === "sending" || scope === "sent") return;
     setScope("sending");
     try {
       const res = await fetch("/api/scope", {
@@ -220,6 +227,9 @@ export function ConciergeSurface({
       {hasMessages && (
         <div
           ref={threadRef}
+          role="log"
+          aria-live="polite"
+          aria-label={t.ai}
           style={{
             maxHeight: maxThreadHeight, overflowY: "auto", padding: "22px 22px 6px",
             display: "flex", flexDirection: "column", gap: 20,
@@ -332,44 +342,52 @@ export function ConciergeSurface({
 
       {/* Email capture — shown once the conversation has substance */}
       {hasThread && scope !== "sent" && (
-        <div style={{
-          display: "flex", alignItems: "center", gap: 10,
-          padding: "12px 18px 16px", borderTop: "1px solid var(--border)",
-        }}>
-          <span style={{
-            font: "500 11px var(--font-mono), monospace", color: "var(--text-muted)",
-            textTransform: "uppercase", letterSpacing: ".06em", flexShrink: 0, whiteSpace: "nowrap",
+        <div style={{ padding: "12px 18px 16px", borderTop: "1px solid var(--border)" }}>
+          {/* Says what the button actually does — without it the bare "Your email"
+              label reads like a newsletter signup and kills the conversion. */}
+          <p style={{
+            font: "400 12px/1.5 var(--font-body), sans-serif", color: "var(--text-muted)",
+            margin: "0 0 10px",
           }}>
-            {t.emailLabel}
-          </span>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => { setEmail(e.target.value); if (scope === "error") setScope("idle"); }}
-            onKeyDown={(e) => { if (e.key === "Enter") sendScope(); }}
-            placeholder={t.emailPlaceholder}
-            style={{
-              flex: 1, background: "var(--bg-surface)", border: "1px solid var(--border)",
-              borderRadius: "var(--radius-sm)", color: "var(--text-display)",
-              font: "400 14px var(--font-body), sans-serif", caretColor: "var(--accent)",
-              padding: "8px 12px", minHeight: 40, minWidth: 0,
-            }}
-          />
-          <button
-            onClick={sendScope}
-            disabled={!email.trim() || scope === "sending"}
-            style={{
-              background: email.trim() ? "var(--accent)" : "var(--bg-surface)",
-              color: email.trim() ? "#08080F" : "var(--text-muted)",
-              border: `1px solid ${email.trim() ? "transparent" : "var(--border)"}`,
-              borderRadius: "var(--radius-md)", padding: "8px 16px",
-              font: "600 13px var(--font-body), sans-serif",
-              cursor: email.trim() ? "pointer" : "not-allowed",
-              transition: "all .15s", flexShrink: 0, minHeight: 40, whiteSpace: "nowrap",
-            }}
-          >
-            {scope === "sending" ? t.sendingScope : t.sendScope}
-          </button>
+            {t.scopeHint}
+          </p>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{
+              font: "500 11px var(--font-mono), monospace", color: "var(--text-muted)",
+              textTransform: "uppercase", letterSpacing: ".06em", flexShrink: 0, whiteSpace: "nowrap",
+            }}>
+              {t.emailLabel}
+            </span>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => { setEmail(e.target.value); if (scope === "error") setScope("idle"); }}
+              onKeyDown={(e) => { if (e.key === "Enter") sendScope(); }}
+              placeholder={t.emailPlaceholder}
+              aria-label={t.emailLabel}
+              style={{
+                flex: 1, background: "var(--bg-surface)", border: "1px solid var(--border)",
+                borderRadius: "var(--radius-sm)", color: "var(--text-display)",
+                font: "400 14px var(--font-body), sans-serif", caretColor: "var(--accent)",
+                padding: "8px 12px", minHeight: 40, minWidth: 0,
+              }}
+            />
+            <button
+              onClick={sendScope}
+              disabled={!emailValid || scope === "sending"}
+              style={{
+                background: emailValid ? "var(--accent)" : "var(--bg-surface)",
+                color: emailValid ? "#08080F" : "var(--text-muted)",
+                border: `1px solid ${emailValid ? "transparent" : "var(--border)"}`,
+                borderRadius: "var(--radius-md)", padding: "8px 16px",
+                font: "600 13px var(--font-body), sans-serif",
+                cursor: emailValid ? "pointer" : "not-allowed",
+                transition: "all .15s", flexShrink: 0, minHeight: 40, whiteSpace: "nowrap",
+              }}
+            >
+              {scope === "sending" ? t.sendingScope : t.sendScope}
+            </button>
+          </div>
         </div>
       )}
     </div>

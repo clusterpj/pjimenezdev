@@ -113,6 +113,40 @@ handoff implemented 1:1:
    skipped — concierge is the hero), a strict CSP (blocked on inline styles + inline
    JSON-LD/gtag), visual/mobile QA at 375px.
 
+## OPEN ISSUE — rate limiting is not enforcing in production
+
+Verified 2026-07-30 against the live Worker. The `[[ratelimits]]` binding
+(`AI_RATE_LIMITER`, 12 req/60s) resolves fine and `limit()` is called with the
+correct `cf-connecting-ip` key, but it returns `success: true` for **every**
+request. 22 sequential same-IP calls inside one 60s window were all admitted;
+so were 25 parallel ones. Proven with a temporary probe read back through
+`wrangler tail --format json`, which logged
+`{"key":"179.52.101.235","success":true}` 16/16 times. Both the inline-table and
+the documented `[ratelimits.simple]` sub-table config forms behave identically,
+and wrangler reports the binding correctly on deploy
+(`env.AI_RATE_LIMITER (12 requests/60s)`). It DOES enforce under
+`wrangler dev --local`, so the code is fine — the deployed binding is the problem.
+
+**So `/api/concierge` and `/api/scope` are currently unlimited.** The cost risk is
+modest (DeepSeek calls are capped at `max_tokens: 500`, so ~a cent each), but
+`/api/scope` sends email through Resend on every call — unlimited means someone
+can flood `hello@pedrojimenez.dev`, burn the Resend quota, and hurt sending
+reputation. That is the real exposure, not the LLM bill.
+
+**Fix (Pedro, dashboard — wrangler's OAuth token lacks the scope):** Cloudflare
+dashboard → the pedrojimenez.dev zone → Security → WAF → Rate limiting rules →
+create a rule matching `URI Path starts with /api/`, e.g. 20 requests per minute
+per IP, action Block. That is the right layer for this anyway; it stops abuse at
+the edge before the Worker (and the LLM/email spend) is ever invoked.
+
+`src/lib/rate-limit.ts` is left wired up and now logs loudly on every failure
+path instead of failing open in silence — it will start working the day the
+binding does. Re-test with:
+`for i in $(seq 1 22); do curl -sS -o /dev/null -w '%{http_code} ' -X POST \
+  https://pedrojimenez.dev/api/scope -H 'content-type: application/json' \
+  -d '{"email":"bad","messages":[{"role":"user","content":"x"}]}'; done`
+Expect 400s turning into 429s. All 400s means still unlimited.
+
 ## Project status — verified 2026-07-30
 
 `Project.status` in `content.ts` drives the case-study label; it used to hard-code

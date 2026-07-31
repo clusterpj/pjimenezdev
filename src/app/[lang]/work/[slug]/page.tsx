@@ -13,17 +13,26 @@ export async function generateMetadata(props: { params: Promise<{ lang: string; 
   const p = getProject(lang, slug);
   if (!p) return {};
   const t = getDict(lang).caseStudy;
+  // Per-project SEO copy where it exists — a keyword-bearing title and a
+  // description written for a search result rather than reused from the card.
+  const title = p.metaTitle ?? t.metaTitle(p.name);
+  const description = p.metaDesc ?? p.desc;
   return {
-    title: t.metaTitle(p.name),
-    description: p.desc,
+    title,
+    description,
     alternates: {
       canonical: `${langPrefix(lang)}/work/${p.id}`,
       languages: { en: `/work/${p.id}`, es: `/es/work/${p.id}` },
     },
     openGraph: {
-      type: "article", title: t.metaTitle(p.name), description: p.desc,
+      type: "article", title, description,
       url: `${SITE_URL}${langPrefix(lang)}/work/${p.id}`,
-      images: [{ url: p.image || "/images/og/home.png", width: 1200, height: 630 }],
+      // Screenshots are arbitrary aspect ratios, so don't declare 1200x630 for
+      // them — scrapers trust the declared dimensions and crop to them. Only
+      // the real OG asset gets explicit sizing.
+      images: p.image
+        ? [{ url: p.image }]
+        : [{ url: "/images/og/home.jpg", width: 1200, height: 630 }],
     },
   };
 }
@@ -82,8 +91,22 @@ export default async function CaseStudy(props: { params: Promise<{ lang: string;
             {p.category}
           </span>
           <span style={{ font: "500 12px var(--font-mono), monospace", color: "var(--text-muted)", letterSpacing: ".06em" }}>
-            {p.year} · {t.inProduction}
+            {p.year} · {t.statusLabel[p.status]}
           </span>
+          {p.liveUrl && (
+            <a
+              href={p.liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                font: "500 12px var(--font-mono), monospace", color: "var(--accent)",
+                letterSpacing: ".06em", textDecoration: "none",
+                borderBottom: "1px solid var(--border-accent)",
+              }}
+            >
+              {t.viewLive} ↗
+            </a>
+          )}
         </div>
         <h1 style={{ font: "700 clamp(36px,6vw,60px)/1.04 var(--font-display), sans-serif", letterSpacing: "-.03em", color: "#fff", margin: "0 0 18px" }}>
           {p.name}

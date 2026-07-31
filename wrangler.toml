@@ -15,7 +15,11 @@ enabled = true
 AI_PROVIDER = "deepseek"
 
 # Per-IP limit shared by /api/concierge and /api/scope (LLM + email calls).
+# Uses the sub-table form from the Cloudflare docs rather than an inline table.
 [[ratelimits]]
 name = "AI_RATE_LIMITER"
 namespace_id = "1001"
-simple = { limit = 12, period = 60 }
+
+  [ratelimits.simple]
+  limit = 12
+  period = 60

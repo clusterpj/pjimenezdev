@@ -13,9 +13,14 @@ export function WorkGrid({ lang }: { lang: Lang }) {
   const [filter, setFilter] = React.useState<string>("All");
 
   const visible = filter === "All" ? all : all.filter((p) => p.cats.includes(filter));
+  // Only offer filters that actually match a project. "Automation" was listed
+  // with nothing tagged for it, so clicking it rendered an empty grid — the
+  // site's second-biggest service looking like a bug. Deriving from the data
+  // keeps that from happening again when projects are added or removed.
   const filters = [
     { key: "All", label: `${t.all} · ${all.length}` },
-    ...FILTER_KEYS.map((key) => ({ key: key as string, label: t.filters[key] })),
+    ...FILTER_KEYS.filter((key) => all.some((p) => p.cats.includes(key)))
+      .map((key) => ({ key: key as string, label: t.filters[key] })),
   ];
 
   return (
@@ -57,7 +62,7 @@ export function WorkGrid({ lang }: { lang: Lang }) {
                 // eslint-disable-next-line @next/next/no-img-element -- external client-site photo, no optimizer on Workers
                 <img
                   src={p.image}
-                  alt=""
+                  alt={`${p.name} — ${p.category}`}
                   loading="lazy"
                   referrerPolicy="no-referrer"
                   style={{ width: "100%", aspectRatio: "16/10", objectFit: "cover", display: "block", borderBottom: "1px solid var(--border)" }}

@@ -17,7 +17,7 @@ export async function generateMetadata(props: { params: Promise<{ lang: string }
       title: t.metaTitle,
       description: t.metaDesc,
       url: `${SITE_URL}${langPrefix(lang)}/`,
-      images: [{ url: "/images/og/home.png", width: 1200, height: 630 }],
+      images: [{ url: "/images/og/home.jpg", width: 1200, height: 630 }],
     },
     twitter: { card: "summary_large_image" },
   };
@@ -214,6 +214,16 @@ export default async function Home(props: { params: Promise<{ lang: string }> })
               <a className="cta-solid" href={`mailto:${EMAIL}`} style={{ padding: "14px 26px", fontSize: 16 }}>{EMAIL}</a>
               <AskSiteButton label={t.home.contactAsk} />
             </div>
+            {/* mailto: does nothing on a machine with no mail client, and the
+                other CTA needs the model to be up. Give home traffic — the
+                bulk of it — a route to the plain form too. */}
+            <Link href={`${pre}/about#contact`} style={{
+              marginTop: 18, font: "400 13px var(--font-body), sans-serif",
+              color: "var(--text-muted)", textDecoration: "underline",
+              textDecorationColor: "var(--border)", textUnderlineOffset: 3,
+            }}>
+              {t.about.formToggle}
+            </Link>
           </div>
         </Reveal>
       </section>

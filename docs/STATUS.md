@@ -1,7 +1,54 @@
 # Project status & backlog
 
-Last updated: 2026-07-30. This is the pick-up-where-we-left-off doc.
+Last updated: 2026-07-31. This is the pick-up-where-we-left-off doc.
 Architecture and conventions live in `CLAUDE.md`; this file tracks state and pending work.
+
+## ⇢ PICK UP HERE — open after the 2026-07-30 deploy
+
+The site is deployed and healthy (version `44ec315c`, all routes 200 in EN + ES,
+home payload 4,800 KB → 1,326 KB). These are the loose ends, most urgent first.
+Items 1–4 need Pedro; 5–6 are code and can be picked up by anyone.
+
+1. **[SECURITY] Add a WAF rate-limiting rule — `/api/*` is currently unlimited.**
+   The Workers `[[ratelimits]]` binding does not enforce in production; proven with
+   `wrangler tail`, full write-up in the OPEN ISSUE section below. The real exposure
+   is `/api/scope`, which sends email via Resend on every call — unlimited means the
+   inbox can be flooded and the Resend sending reputation burned. The LLM bill is the
+   lesser risk (`max_tokens: 500`, ~a cent a call).
+   Cloudflare dashboard → pedrojimenez.dev → Security → WAF → Rate limiting rules →
+   match `URI Path starts with /api/`, 20 req/min per IP, action Block.
+   Dashboard-only: wrangler's OAuth token has no WAF scope. ~2 minutes.
+
+2. **Branch is not pushed.** Nine commits sit on `fix-deepseek-model`; `master` is
+   nine behind and nothing is on GitHub. Production runs this code, so the only copy
+   of it is this working tree. Merge to `master` and push, or push the branch and open
+   a PR — but do not leave it only on disk.
+
+3. **Verify the smoke-test lead email actually rendered.** A test lead was sent
+   through production on 2026-07-30 (subject starts "New project", body contains
+   "DEPLOY SMOKE TEST") to `hello@pedrojimenez.dev`, CC `jisgore@gmail.com`. The API
+   returned `{"ok":true}`, but nobody has looked at the delivered mail. Confirm the
+   "What they wrote" transcript block renders — that block is what makes a lead
+   survive an LLM outage, and it has never been eyeballed in a real inbox.
+
+4. **Re-scrape the OG image.** The URL changed `/images/og/home.png` →
+   `home.jpg`, so cached previews are stale. Facebook Sharing Debugger and LinkedIn
+   Post Inspector, one scrape each.
+
+5. **Visual + mobile QA at 375px — never done.** No browser tooling was available for
+   most of this work, so the entire redesign was verified over HTTP and in the
+   workerd runtime, never rendered. Nothing here has been *seen* on a phone. Highest
+   risk: the `<details>` contact-form disclosure and the form's two-column
+   name/email grid on `/about#contact` (both new), long ES strings in the concierge
+   bubbles, and the case-study gallery grid. Chromium is available locally at
+   `/usr/bin/chromium-browser` — see backlog 1 for the CDP screenshot recipe.
+
+6. **Cloudflare Web Analytics beacon** — see backlog 0. GA4 is live and firing
+   `generate_lead`, but there is no server-side number that survives ad-blockers.
+
+**Damage note:** an untracked `shoot.mjs` in the repo root was overwritten on
+2026-07-30 by a script of the same name and is unrecoverable (never committed, no
+backup). It was Pedro's file, destroyed by not reading before writing.
 
 ## Shipped (live at https://pedrojimenez.dev)
 
@@ -34,6 +81,7 @@ handoff implemented 1:1:
 - Per-IP rate limiting (12 req/min) on `/api/concierge` + `/api/scope` via the Workers
   `[[ratelimits]]` binding (`AI_RATE_LIMITER` in `wrangler.toml`, helper in
   `src/lib/rate-limit.ts`). Fail-open in plain `next dev` where the binding is absent.
+  **Superseded — this never actually enforced in production. See the OPEN ISSUE below.**
 - AI-reactive Three.js particle field behind the hero concierge
   (`src/components/sections/HeroField.tsx`): amber idle drift → listening blue on input
   focus → violet family while processing/responding (driven by `pj:ai-state` CustomEvents
@@ -42,6 +90,26 @@ handoff implemented 1:1:
 - Easter eggs: styled console message (`PageTracker`), hidden concierge personality
   responses in the system prompt.
 - `facebook-domain-verification` meta tag in the root layout.
+
+**Audit, lead-path rebuild + content rewrite** (2026-07-30, deployed version `44ec315c`):
+
+- Fixed a race in `ConciergeSurface` that silently dropped emails typed into the chat
+  (the auto-send timer was cleared by the effect cleanup on every streamed token).
+- Concierge was quoting invented prices in production ("$15k–$30k") and describing 8
+  projects when there were 6 — both prompt bugs, now derived from `content.ts`.
+- `ContactForm` + `BOOKING_URL`: a lead path that does not depend on the LLM being up.
+  `/api/scope` now always includes the raw transcript, so a lead survives an outage.
+- Payload: fonts TTF → subsetted WOFF2 via `next/font/google` (1,168 → 344 KB), images
+  → WebP (11.9 MB → 1.2 MB), OG → JPEG (2.78 MB → 109 KB, JPEG because LinkedIn's
+  scraper is unreliable with WebP), `public/_headers` for immutable asset caching.
+  Home 4,800 → 1,326 KB.
+- Security headers + `poweredByHeader: false` in `next.config.ts`. No CSP yet — inline
+  style attributes and inline JSON-LD/gtag would force `unsafe-inline` on both.
+- All 7 case studies rewritten from the real repos, with per-project `status`
+  (`production` / `mvp` / `prototype`) and `liveUrl` replacing a blanket "in production"
+  claim that was false for two of them.
+- `npm test` (node:test, no framework) asserts content integrity: images exist on disk,
+  EN/ES parity, only production projects claim a live URL, meta lengths in range. 8/8.
 
 ## Deploy / operate
 

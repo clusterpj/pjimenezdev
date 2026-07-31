@@ -1,6 +1,6 @@
 # Project status & backlog
 
-Last updated: 2026-07-19. This is the pick-up-where-we-left-off doc.
+Last updated: 2026-07-30. This is the pick-up-where-we-left-off doc.
 Architecture and conventions live in `CLAUDE.md`; this file tracks state and pending work.
 
 ## Shipped (live at https://pedrojimenez.dev)
@@ -8,7 +8,7 @@ Architecture and conventions live in `CLAUDE.md`; this file tracks state and pen
 **Production design rebuild** (commit `f8d7f46`) — the "Website production design system"
 handoff implemented 1:1:
 
-- Routes: `/` (hero = live concierge), `/work` (filters), `/work/[slug]` (8 case studies),
+- Routes: `/` (hero = live concierge), `/work` (filters), `/work/[slug]` (6 case studies),
   `/services`, `/about` (+ `#contact`). Blog, contact page, estimator, and the ⌘K overlay
   were removed — the final design replaced them.
 - ALL copy + project data in `src/lib/content.ts` (EN + ES). Concierge system prompts are
@@ -52,40 +52,63 @@ handoff implemented 1:1:
 
 ## Backlog (in priority order)
 
-0. **Web Analytics beacon** — Pedro: Cloudflare dashboard → Analytics & Logs →
-   Web Analytics → Add site (pedrojimenez.dev, disable automatic setup) → copy the beacon
-   token. Then add to `src/app/[lang]/layout.tsx` before `</body>`:
-   `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "TOKEN"}' />`.
-   Wrangler's OAuth token has no RUM scope, so this can't be done from the CLI.
-1. **Project thumbnails** — the biggest remaining visual gap. For each of the 8 projects:
-   16:10 WebP at `public/images/projects/<project-id>/thumb.webp` (1600×1000, ≤150KB), plus
-   optional `hero.webp` (2400×1200) for top projects. Preferred: real screenshot framed on a
-   dark backdrop; pure-AI conceptual scenes only where no screenshot exists. Then wire:
-   thumbnail band on work cards (home + /work) and hero band on `/work/[slug]`.
-   Conceptual-scene prompt cores (combine with the style recipe below):
-   | Project | Concept |
-   |---|---|
-   | melow | real screenshot preferred (odontogram chart or WhatsApp intake flow) — has an actual UI |
-   | c21-perdomo | Caribbean modern house at dusk, amber windows, translucent listing-card UI overlay |
-   | moneyguard | hand holding phone with a red "hold on" intervention alert, pesos blurred behind |
-   | cabarete-villas | beachfront villa at golden hour, floating calendar/availability overlay |
-   | ruleta | neon prize wheel mid-spin at a dark event booth, motion blur, confetti |
-   | luxedrive | luxury SUV in dark showroom, fleet-dashboard hologram above the hood |
-   | social-command | one Telegram message exploding into four platform icons, light trails |
-   | seo-blog | terminal window growing into a tree of document pages, green/amber glow |
-   Image style recipe (keep every asset in this look):
-   > editorial, very dark navy-black background (#08080F), single warm amber rim light,
-   > subtle cool violet fill like monitor glow, cinematic, no text
-2. **Real metrics in case studies** — problem/build/outcome copy in `src/lib/content.ts` was
-   drafted from one-liners with NO invented numbers; replace with real figures where they exist.
-   Melow (`f8d7f46`→`a9ed180`) is done as the template: real product details, renamed from
-   BotForge, with a redirect from the old `/work/botforge` URL in `next.config.ts`.
-3. **Spanish native pass** — ES copy in `content.ts` is Claude's translation in Pedro's voice;
-   read through and adjust.
-4. **OG check** — preview links at opengraph.xyz after any metadata change; consider per-project
-   OG images once project thumbs exist (currently all reuse `og/home.png`).
-5. **Nice-to-haves from the handoff** not yet done: per-project OG meta images, WebGL/motion
-   hero extras (deliberately skipped — concierge is the hero), Vitest when logic warrants it.
+0. **Web Analytics beacon** — GA4 is live (`NEXT_PUBLIC_GA_ID`, `G-5MHSRK6F0J`) and fires
+   `generate_lead` from both the concierge and the contact form. Cloudflare Web Analytics is
+   still unset and would give a server-side number that ad-blockers can't drop: Cloudflare
+   dashboard → Analytics & Logs → Web Analytics → Add site (disable automatic setup) → copy the
+   beacon token into `src/app/[lang]/layout.tsx`. Wrangler's OAuth token has no RUM scope, so
+   this can't be done from the CLI.
+1. **LuxeDrive has no image** — the only project without one, so its card renders bare next to
+   five image cards and its case study has no hero. `npm test` fails on this deliberately.
+   Repo is at `~/car-next`; run it locally and screenshot the booking flow and admin dashboard.
+2. **No Automation proof project** — "Automations" is service #2 with nothing tagged
+   `cats: ["Automation"]`, so the `/work` filter for it is hidden and the service card has no
+   proof link. `npm test` fails on this deliberately. The fix already exists as a repo:
+   `~/social-ai-app` (Social Command Center — Telegram bot → AI copy + images → one-tap publish
+   to Instagram/LinkedIn/Facebook/X via Zernio; Bun + grammY + SQLite, running on a droplet
+   under systemd). It shipped on this site once as `/work/social-command` and was removed;
+   `next.config.ts` currently 308s that URL to `/work`. To restore: write the project block,
+   tag it `["Automation", "AI"]`, drop the redirect, and add screenshots of the Telegram
+   preview flow and the `/admin` console.
+3. **Real metrics in case studies** — DONE for the four projects with local repos. All six
+   blocks in `src/lib/content.ts` were rewritten from repo docs (2026-07-30): Melow from
+   `~/BotForge` README + TechSpec, C21 from `~/c21-web` SEO audits, MoneyGuard from
+   `~/MoneyGuard` README + ROADMAP, LuxeDrive from `~/car-next/PORTFOLIO_CASE_STUDY.md`.
+   Cabarete Villas and Ruleta have no local repo — their copy is unverified beyond a live
+   HTTP check on cabaretevillas.com, so treat their claims as the weakest on the site.
+4. **Spanish native pass** — ES copy in `content.ts` is Claude's translation in Pedro's voice;
+   read through and adjust. The six case studies were retranslated on 2026-07-30 and are the
+   freshest ES on the site, so start elsewhere.
+5. **Pricing stance** — the concierge is now forbidden from naming any figure (it was inventing
+   ranges like "$15k–$30k" in production). That's accurate but nothing self-qualifies visitors.
+   Decide a real floor, then relax the rule in `src/app/api/concierge/route.ts`.
+6. **BOOKING_URL** — empty constant in `content.ts`. Paste a Cal.com/Calendly link and the
+   "Book a call" card appears on `/about#contact`.
+7. **OG check** — preview links at opengraph.xyz after any metadata change. OG images are JPEG
+   (not WebP) on purpose: LinkedIn's scraper is unreliable with WebP. Per-project OG images are
+   still a nice-to-have; case studies currently use their own screenshot as `og:image` without
+   declared dimensions.
+8. **Nice-to-haves from the handoff** not yet done: WebGL/motion hero extras (deliberately
+   skipped — concierge is the hero), a strict CSP (blocked on inline styles + inline
+   JSON-LD/gtag), visual/mobile QA at 375px.
+
+## Project status — verified 2026-07-30
+
+`Project.status` in `content.ts` drives the case-study label; it used to hard-code
+"in production" for all of them, which was false for two.
+
+| Project | Status | Live | Local repo |
+|---|---|---|---|
+| melow | production | — (client deploy) | `~/BotForge` |
+| c21-perdomo | production | c21perdomo.com (200) | `~/c21-web` |
+| cabarete-villas | production | cabaretevillas.com (200) | none |
+| ruleta | production | n/a (mobile app) | none |
+| moneyguard | mvp | n/a — beta group | `~/MoneyGuard` |
+| luxedrive | prototype | never deployed | `~/car-next` |
+
+**Do not use these repos for portfolio content** — `~/asset-insights-agent`, `~/coyote-ui`,
+`~/coyote-cms-api`, `~/coyote-managed-api`, `~/ui-component-library` are InvestorFlow /
+Coyote Software work. Employer IP, not Pedro's to publish.
 
 ## Fixed contact facts (don't re-ask)
 

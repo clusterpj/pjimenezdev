@@ -59,3 +59,39 @@ test("every filter key has a label in both languages", () => {
     }
   }
 });
+
+test("status and liveUrl agree across languages", () => {
+  // Same project, same facts — only the prose is translated.
+  for (const en of projects.en) {
+    const es = projects.es.find((p) => p.id === en.id)!;
+    assert.equal(es.status, en.status, `${en.id}: status differs between EN and ES`);
+    assert.equal(es.liveUrl, en.liveUrl, `${en.id}: liveUrl differs between EN and ES`);
+  }
+});
+
+test("only production projects claim a live URL", () => {
+  // A "view it live" link on something that isn't deployed is the one broken
+  // promise a prospect will definitely click.
+  for (const lang of langs) {
+    for (const p of projects[lang]) {
+      if (!p.liveUrl) continue;
+      assert.equal(p.status, "production", `${p.id} links to ${p.liveUrl} but status is "${p.status}"`);
+      assert.match(p.liveUrl, /^https:\/\//, `${p.id}: liveUrl must be https`);
+    }
+  }
+});
+
+test("SEO titles and descriptions stay within useful length", () => {
+  // Google truncates around these lengths; over-long copy just gets cut off.
+  for (const lang of langs) {
+    for (const p of projects[lang]) {
+      if (p.metaTitle) {
+        assert.ok(p.metaTitle.length <= 75, `${lang}/${p.id}: metaTitle is ${p.metaTitle.length} chars (max 75)`);
+      }
+      if (p.metaDesc) {
+        const n = p.metaDesc.length;
+        assert.ok(n >= 110 && n <= 185, `${lang}/${p.id}: metaDesc is ${n} chars (want 110-185)`);
+      }
+    }
+  }
+});

@@ -3,8 +3,23 @@ import { getProvider, type ChatMessage } from '@/lib/ai';
 import { projects } from '@/lib/content';
 import { rateLimited } from '@/lib/rate-limit';
 
+// Status is included so the concierge can't tell a visitor that a working
+// prototype is running in production — the same overclaim the case-study pages
+// used to make.
+const STATUS_TEXT = {
+  production: 'in production',
+  mvp: 'MVP, in beta — not yet a public launch',
+  prototype: 'working prototype, never deployed to a live client',
+} as const;
+
 const projectList = projects.en
-  .map((p) => `- ${p.name} (${p.year}) — /work/${p.id}: ${p.desc} Stack: ${p.tags.join(', ')}.`)
+  .map((p) => {
+    const live = p.liveUrl ? ` Live at ${p.liveUrl}.` : '';
+    // `outcome` is the one line a buyer actually asks about ("and what did it
+    // do?"). Cheap to include; without it the model improvises detail it
+    // doesn't have. Deeper specifics stay on the case-study page it links to.
+    return `- ${p.name} (${p.year}) — /work/${p.id} [${STATUS_TEXT[p.status]}]:${live} ${p.desc} Result: ${p.outcome} Stack: ${p.tags.join(', ')}.`;
+  })
   .join('\n');
 
 // Derived, never hardcoded — the prompt used to claim "8 projects" long after
@@ -37,7 +52,7 @@ Facts:
 - Availability: open for new projects from July 2026, typically replies within 24h.
 - On pricing: Pedro scopes per-project and does not publish rates. NEVER state a number, range, hourly rate, or "starts at" figure — you do not know his pricing and any figure you give is fabricated. When asked about cost, say it depends on scope, then turn it into a qualifying question: what they're building, timeline, and the budget range THEY have in mind. Getting their number is the goal; giving one is not yours to give.
 
-Projects:
+Projects (the bracketed status is the truth — never upgrade a prototype or MVP to "in production", and never claim a project is live unless a Live URL is listed):
 ${projectList}
 
 EASTER EGGS — if someone asks whether you're sentient, conscious, or "a real AI": be playfully deadpan, e.g. "I'm a website that reads its own source code. Sentient enough to know Pedro ships fast." If someone says "tell Pedro he's hired" or similar: "Deal. Drop your email and I'll hold him to it." If someone asks who built you: Pedro did — you run on an LLM through a Cloudflare Worker, and this site's code is the first item in the portfolio. Never break the site persona.

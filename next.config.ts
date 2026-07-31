@@ -6,12 +6,12 @@ const nextConfig: NextConfig = {
       // BotForge was renamed to Melow after launch — keep the old, already-indexed URL alive.
       { source: "/work/botforge", destination: "/work/melow", permanent: true },
       { source: "/es/work/botforge", destination: "/es/work/melow", permanent: true },
-      // social-command and seo-blog shipped in f8d7f46, were listed in the
-      // sitemap, then dropped from content.ts — leaving indexed URLs 404ing.
-      // No replacement case study, so send them to the index.
-      { source: "/work/social-command", destination: "/work", permanent: true },
+      // seo-blog shipped in f8d7f46, was listed in the sitemap, then dropped
+      // from content.ts — leaving an indexed URL 404ing. No replacement case
+      // study, so send it to the index.
+      // (social-command had the same redirect until the case study was restored
+      // from ~/social-ai-app — its real page now serves that URL again.)
       { source: "/work/seo-blog", destination: "/work", permanent: true },
-      { source: "/es/work/social-command", destination: "/es/work", permanent: true },
       { source: "/es/work/seo-blog", destination: "/es/work", permanent: true },
     ];
   },

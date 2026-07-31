@@ -8,7 +8,7 @@ Architecture and conventions live in `CLAUDE.md`; this file tracks state and pen
 **Production design rebuild** (commit `f8d7f46`) — the "Website production design system"
 handoff implemented 1:1:
 
-- Routes: `/` (hero = live concierge), `/work` (filters), `/work/[slug]` (6 case studies),
+- Routes: `/` (hero = live concierge), `/work` (filters), `/work/[slug]` (7 case studies),
   `/services`, `/about` (+ `#contact`). Blog, contact page, estimator, and the ⌘K overlay
   were removed — the final design replaced them.
 - ALL copy + project data in `src/lib/content.ts` (EN + ES). Concierge system prompts are
@@ -61,15 +61,16 @@ handoff implemented 1:1:
 1. **LuxeDrive has no image** — the only project without one, so its card renders bare next to
    five image cards and its case study has no hero. `npm test` fails on this deliberately.
    Repo is at `~/car-next`; run it locally and screenshot the booking flow and admin dashboard.
-2. **No Automation proof project** — "Automations" is service #2 with nothing tagged
-   `cats: ["Automation"]`, so the `/work` filter for it is hidden and the service card has no
-   proof link. `npm test` fails on this deliberately. The fix already exists as a repo:
-   `~/social-ai-app` (Social Command Center — Telegram bot → AI copy + images → one-tap publish
-   to Instagram/LinkedIn/Facebook/X via Zernio; Bun + grammY + SQLite, running on a droplet
-   under systemd). It shipped on this site once as `/work/social-command` and was removed;
-   `next.config.ts` currently 308s that URL to `/work`. To restore: write the project block,
-   tag it `["Automation", "AI"]`, drop the redirect, and add screenshots of the Telegram
-   preview flow and the `/admin` console.
+2. ~~**No Automation proof project**~~ — DONE 2026-07-30. Restored `~/social-ai-app` as
+   `/work/social-command` (Social Command Center), tagged `cats: ["Automation", "AI"]`, so the
+   `/work` Automation filter renders again and the Automations service card links to proof
+   instead of a mailto. Its `next.config.ts` redirect was removed. Screenshots were captured by
+   pointing headless Chromium at `~/social-ai-app/public/admin.html`:
+   `chromium-browser --headless --force-device-scale-factor=2 --window-size=1500,2600
+   --screenshot=$HOME/shot.png file:///home/pedro/social-ai-app/public/admin.html`
+   — note snap Chromium has a private `/tmp`, so write the output under `$HOME`. The four
+   `.webp` crops live in `public/images/work/social-command/`. The 8 JPGs in
+   `~/social-ai-app/data/media/` are blank-blue failed generations, not usable.
 3. **Real metrics in case studies** — DONE for the four projects with local repos. All six
    blocks in `src/lib/content.ts` were rewritten from repo docs (2026-07-30): Melow from
    `~/BotForge` README + TechSpec, C21 from `~/c21-web` SEO audits, MoneyGuard from
@@ -101,10 +102,14 @@ handoff implemented 1:1:
 |---|---|---|---|
 | melow | production | — (client deploy) | `~/BotForge` |
 | c21-perdomo | production | c21perdomo.com (200) | `~/c21-web` |
+| social-command | production | — (private Telegram bot) | `~/social-ai-app` |
 | cabarete-villas | production | cabaretevillas.com (200) | none |
 | ruleta | production | n/a (mobile app) | none |
 | moneyguard | mvp | n/a — beta group | `~/MoneyGuard` |
 | luxedrive | prototype | never deployed | `~/car-next` |
+
+Home features `slice(0, 6)`, so LuxeDrive — the one project with no image — is the one that
+falls off the home grid. `/work` still shows all seven.
 
 **Do not use these repos for portfolio content** — `~/asset-insights-agent`, `~/coyote-ui`,
 `~/coyote-cms-api`, `~/coyote-managed-api`, `~/ui-component-library` are InvestorFlow /

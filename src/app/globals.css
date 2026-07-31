@@ -208,6 +208,28 @@ a { color: inherit; }
 [data-reveal].revealed { opacity: 1; transform: none; }
 
 .cc-input:focus { outline: none; }
+
+/* Contact-form disclosure under the concierge. Native <details>, so it works
+   with no JS and stays keyboard-accessible for free. */
+.cf-summary {
+  cursor: pointer;
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font: 500 13px var(--font-body), sans-serif;
+  color: var(--text-muted);
+  transition: color var(--duration-fast) var(--ease-default);
+}
+.cf-summary::-webkit-details-marker { display: none; }
+.cf-summary::before {
+  content: "+";
+  font: 500 14px var(--font-mono), monospace;
+  color: var(--accent);
+}
+.cf-details[open] .cf-summary::before { content: "–"; }
+.cf-summary:hover { color: var(--text-body); }
 .cc-wrap:focus-within { box-shadow: 0 0 0 3px var(--accent-glow) !important; }
 
 .sec-pad { padding: clamp(64px, 9vw, 120px) clamp(20px, 5vw, 48px); }

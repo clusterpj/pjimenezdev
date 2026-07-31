@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { EMAIL, FACEBOOK_URL, GITHUB_URL, LINKEDIN_URL, SITE_URL, asLang, getDict, langPrefix } from "@/lib/content";
+import { BOOKING_URL, EMAIL, FACEBOOK_URL, GITHUB_URL, LINKEDIN_URL, SITE_URL, asLang, getDict, langPrefix } from "@/lib/content";
 import { ContactConcierge } from "@/components/ai/ContactConcierge";
+import { ContactForm } from "@/components/ai/ContactForm";
 
 export async function generateMetadata(props: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const lang = asLang((await props.params).lang);
@@ -134,7 +135,18 @@ export default async function AboutPage(props: { params: Promise<{ lang: string 
           {a.contactSub}
         </p>
         <div className="split-a">
-          <ContactConcierge lang={lang} />
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <ContactConcierge lang={lang} />
+            {/* Guaranteed lead path when the visitor doesn't want to chat, or the
+                model is down. <details> keeps the concierge the primary surface
+                without needing client state to toggle it. */}
+            <details className="cf-details">
+              <summary className="cf-summary">{a.formToggle}</summary>
+              <div style={{ marginTop: 14 }}>
+                <ContactForm lang={lang} />
+              </div>
+            </details>
+          </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <a href={`mailto:${EMAIL}`} style={{
               display: "flex", flexDirection: "column", gap: 6, background: "var(--bg-surface)",
@@ -145,6 +157,19 @@ export default async function AboutPage(props: { params: Promise<{ lang: string 
               <span style={{ font: "600 clamp(16px,2.4vw,20px) var(--font-display), sans-serif", color: "var(--accent)" }}>{EMAIL}</span>
               <span style={{ font: "400 13px/1.5 var(--font-body), sans-serif", color: "var(--text-body)" }}>{a.emailDesc}</span>
             </a>
+            {/* Renders only once BOOKING_URL is set in content.ts. */}
+            {BOOKING_URL && (
+              <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer" style={{
+                display: "flex", flexDirection: "column", gap: 6, background: "var(--bg-surface)",
+                border: "1px solid var(--border)", borderRadius: "var(--radius-lg)",
+                padding: 24, textDecoration: "none",
+              }}>
+                <span style={monoLabel}>{a.bookLabel}</span>
+                <span style={{ font: "600 clamp(15px,2.2vw,18px) var(--font-display), sans-serif", color: "var(--accent)" }}>
+                  {a.bookCta} <span style={{ fontFamily: "var(--font-mono)" }}>→</span>
+                </span>
+              </a>
+            )}
             <div style={{ background: "var(--bg-surface)", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", padding: 24 }}>
               <span style={{ ...monoLabel, display: "block", marginBottom: 12 }}>{a.includeLabel}</span>
               <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>

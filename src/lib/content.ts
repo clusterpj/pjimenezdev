@@ -12,6 +12,12 @@ export const GITHUB_URL = "https://github.com/clusterpj";
 export const LINKEDIN_URL = "https://www.linkedin.com/in/pedro-jimenez-97343653/";
 export const FACEBOOK_URL = "https://www.facebook.com/profile.php?id=61591124986626";
 
+/** Booking link (Cal.com / Calendly / whatever). Paste the URL and the "Book a
+ *  call" card appears on /about#contact automatically; leave it empty and
+ *  nothing renders. A booked call converts far better than an email thread,
+ *  so this is worth filling in. */
+export const BOOKING_URL = "";
+
 /** URL prefix for a language: EN lives at /, ES at /es */
 export const langPrefix = (lang: Lang) => (lang === "en" ? "" : "/es");
 
@@ -377,6 +383,20 @@ const en = {
       "What's manual, broken, or missing today",
       "Any deadline or budget reality I should know about",
     ],
+    formToggle: "Rather just fill in a form?",
+    formTitle: "Send a message",
+    formName: "Name",
+    formNamePlaceholder: "Your name",
+    formEmail: "Email",
+    formEmailPlaceholder: "you@company.com",
+    formMessage: "What are you building?",
+    formMessagePlaceholder: "A couple of lines is plenty — what it does, what's broken today, and any deadline.",
+    formSend: "Send to Pedro",
+    formSending: "Sending…",
+    formSent: "Sent. Pedro will reply within 24h — there's a copy in your inbox.",
+    bookLabel: "Prefer to talk?",
+    bookCta: "Book a 20-min call",
+    formError: `Couldn't send that. Try again, or email ${EMAIL} directly.`,
   },
   concierge: {
     fallback: `Not sure how to answer that — email ${EMAIL} and he'll reply within a day.`,
@@ -543,6 +563,20 @@ const es: typeof en = {
       "Qué es manual, está roto o falta hoy",
       "Cualquier fecha límite o limitación de presupuesto que deba saber",
     ],
+    formToggle: "¿Prefieres llenar un formulario?",
+    formTitle: "Envía un mensaje",
+    formName: "Nombre",
+    formNamePlaceholder: "Tu nombre",
+    formEmail: "Email",
+    formEmailPlaceholder: "tu@empresa.com",
+    formMessage: "¿Qué estás construyendo?",
+    formMessagePlaceholder: "Con un par de líneas basta — qué hace, qué está roto hoy y si tienes fecha límite.",
+    formSend: "Enviar a Pedro",
+    formSending: "Enviando…",
+    formSent: "Enviado. Pedro te responderá en 24h — tienes una copia en tu bandeja.",
+    bookLabel: "¿Prefieres hablar?",
+    bookCta: "Agenda una llamada de 20 min",
+    formError: `No se pudo enviar. Intenta de nuevo o escribe directo a ${EMAIL}.`,
   },
   concierge: {
     fallback: `No estoy seguro de cómo responder eso — escribe a ${EMAIL} y te responde en un día.`,

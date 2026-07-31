@@ -42,15 +42,20 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       messages?: { role: string; content: string }[];
       email?: string;
       lang?: string;
+      name?: string;
+      /** "concierge" (chat transcript) or "form" (the no-AI fallback). */
+      source?: string;
     };
 
-    const { messages = [], email = "", lang = "en" } = body;
+    const { messages = [], email = "", lang = "en", name = "", source = "concierge" } = body;
 
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: "A valid email address is required" }, { status: 400 });
     }
-    if (!Array.isArray(messages) || messages.length < 2) {
-      return NextResponse.json({ error: "At least a question and reply are required" }, { status: 400 });
+    // The contact form sends a single message, so one is enough. Requiring two
+    // was a concierge-shaped assumption that locked the form out of this route.
+    if (!Array.isArray(messages) || messages.length < 1 || !messages.some((m) => m.content?.trim())) {
+      return NextResponse.json({ error: "A message is required" }, { status: 400 });
     }
 
     const apiKey = getEnv("RESEND_API_KEY");
@@ -95,9 +100,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         : `New project — ${email}`;
 
     const isEs = lang === "es";
+    const esc = (s: string) =>
+      s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     const field = (label: string, value: string) =>
       value && value !== "No mencionado" && value !== "Not mentioned" && value !== "Ninguno mencionado" && value !== "None mentioned" && value.trim()
-        ? `<div style="margin-bottom:16px"><div style="font:500 11px monospace;color:#FFB23E;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">${label}</div><div style="font:400 14px/1.65 system-ui,sans-serif;color:#C8C8D0">${value.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div></div>`
+        ? `<div style="margin-bottom:16px"><div style="font:500 11px monospace;color:#FFB23E;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">${label}</div><div style="font:400 14px/1.65 system-ui,sans-serif;color:#C8C8D0">${esc(value)}</div></div>`
         : "";
 
     const readinessBadge = summary.scopeReadiness === "ready_to_build"
@@ -109,7 +116,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 <div style="background:#101019;border:1px solid rgba(255,178,62,.30);border-radius:16px;padding:32px;box-shadow:0 0 24px rgba(255,178,62,.15)">
 
 <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px">
-  <h2 style="color:#FFB23E;margin:0;font-size:20px;line-height:1.2">${(summary.headline || subject).replace(/</g, "&lt;").replace(/>/g, "&gt;")}</h2>
+  <h2 style="color:#FFB23E;margin:0;font-size:20px;line-height:1.2">${esc(summary.headline || subject)}</h2>
   ${readinessBadge}
 </div>
 
@@ -120,14 +127,20 @@ ${field(isEs ? "Presupuesto" : "Budget", summary.budget)}
 ${field(isEs ? "Notas técnicas" : "Tech notes", summary.techNotes)}
 
 <div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08)">
+  <div style="font:500 11px monospace;color:#7A7A88;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">${isEs ? "Lo que escribieron" : "What they wrote"}</div>
+  <pre style="white-space:pre-wrap;word-wrap:break-word;font:400 13px/1.6 system-ui,sans-serif;color:#C8C8D0;margin:0;background:#08080F;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:14px">${esc(convoText)}</pre>
+</div>
+
+<div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08)">
   <div style="font:500 11px monospace;color:#7A7A88;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">${isEs ? "Contacto" : "Contact"}</div>
-  <div style="font:600 16px system-ui,sans-serif;color:#FFB23E">${email.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+  ${name.trim() ? `<div style="font:600 16px system-ui,sans-serif;color:#fff;margin-bottom:2px">${esc(name)}</div>` : ""}
+  <div style="font:600 16px system-ui,sans-serif;color:#FFB23E">${esc(email)}</div>
   <p style="color:#7A7A88;font-size:13px;margin:8px 0 0">${isEs ? `Responde directo — el cliente está en copia.` : `Reply directly — the client is CC'd on this email.`}</p>
 </div>
 
 </div>
 <div style="padding:20px 32px 0;font:400 11px monospace;color:#7A7A88;letter-spacing:.04em">
-  ${isEs ? "Dimensionado por pedro.ai" : "Scoped by pedro.ai"}
+  ${source === "form" ? (isEs ? "Enviado desde el formulario de contacto" : "Sent from the contact form") : (isEs ? "Dimensionado por pedro.ai" : "Scoped by pedro.ai")}
 </div>
 </body></html>`;
 

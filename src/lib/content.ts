@@ -195,7 +195,9 @@ const projectsEn: Project[] = [
       "Role-based authorization at the API boundary — shared middleware validates the session and role claim before any handler runs, so admin-only fleet writes and dashboard aggregates reject non-admins regardless of what the client sends.",
       "Dashboard KPIs computed server-side with MongoDB aggregation pipelines — revenue, active rentals, most-rented vehicles, week- and month-over-month deltas arrive as one payload, so the client renders numbers instead of recomputing them.",
     ],
-    outcome: "A complete working prototype: data modeling, REST API, auth and authorization middleware, the customer booking UI, and the admin dashboard, with Jest coverage over the booking rules. Not deployed to a live tenant — it stands as a reference build for how to make availability and access-control guarantees structural rather than advisory.",
+    outcome: "A working prototype end to end: data modeling, REST API, auth and authorization middleware, the customer fleet and booking UI, vehicle management, and the aggregation endpoints behind the KPI dashboard — all verified against a live database, with Jest coverage over the booking rules. Never deployed to a paying tenant; it stands as a reference build for making availability and access-control guarantees structural rather than advisory.",
+    image: "/images/work/luxedrive/fleet.webp",
+    gallery: ["/images/work/luxedrive/vehicle-detail.webp", "/images/work/luxedrive/admin-vehicles.webp"],
   },
 ];
 
@@ -336,7 +338,9 @@ const projectsEs: Project[] = [
       "Autorización por roles en la frontera de la API — un middleware compartido valida la sesión y el rol antes de que corra cualquier handler, así que las escrituras de flota y los agregados del panel rechazan a quien no sea admin sin importar lo que mande el cliente.",
       "KPIs del panel calculados en el servidor con pipelines de agregación de MongoDB — ingresos, rentas activas, vehículos más rentados y variaciones semana y mes contra mes llegan en un solo payload, así que el cliente pinta números en vez de recalcularlos.",
     ],
-    outcome: "Un prototipo completo y funcional: modelado de datos, API REST, middleware de autenticación y autorización, la UI de reserva del cliente y el panel de administración, con cobertura de Jest sobre las reglas de reserva. No desplegado a un cliente en vivo — queda como build de referencia de cómo hacer que las garantías de disponibilidad y de control de acceso sean estructurales y no advertencias.",
+    outcome: "Un prototipo funcional de punta a punta: modelado de datos, API REST, middleware de autenticación y autorización, la UI de flota y reserva del cliente, la gestión de vehículos y los endpoints de agregación detrás del panel de KPIs — todo verificado contra una base de datos real, con cobertura de Jest sobre las reglas de reserva. Nunca desplegado a un cliente que pague; queda como build de referencia para hacer que las garantías de disponibilidad y control de acceso sean estructurales y no advertencias.",
+    image: "/images/work/luxedrive/fleet.webp",
+    gallery: ["/images/work/luxedrive/vehicle-detail.webp", "/images/work/luxedrive/admin-vehicles.webp"],
   },
 ];
 

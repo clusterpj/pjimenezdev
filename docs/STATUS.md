@@ -58,9 +58,29 @@ handoff implemented 1:1:
    dashboard → Analytics & Logs → Web Analytics → Add site (disable automatic setup) → copy the
    beacon token into `src/app/[lang]/layout.tsx`. Wrangler's OAuth token has no RUM scope, so
    this can't be done from the CLI.
-1. **LuxeDrive has no image** — the only project without one, so its card renders bare next to
-   five image cards and its case study has no hero. `npm test` fails on this deliberately.
-   Repo is at `~/car-next`; run it locally and screenshot the booking flow and admin dashboard.
+1. ~~**LuxeDrive has no image**~~ — DONE 2026-07-30. Screenshots captured by running
+   `~/car-next` against the local MongoDB (already seeded: 4 users, 7 vehicles, 3 rentals — do
+   NOT run `npm run seed`, it `deleteMany`s all three). Assets in
+   `public/images/work/luxedrive/`. Two gotchas for next time:
+   - Port 3000 was taken so Next fell back to 3001, but `.env.local` pins
+     `NEXTAUTH_URL=http://localhost:3000` — credential sign-in silently fails (POST
+     `/api/auth/callback/credentials` returns 200 and the session stays anon). Start it with
+     `NEXTAUTH_URL=http://localhost:3001 PORT=3001 npm run dev`.
+   - Admin pages need a real session, so the shots were taken by attaching to a
+     separately-launched headless Chromium over CDP (Node 22 has a global WebSocket, so no
+     Playwright needed) and submitting the login form. Seeded admin is
+     `admin@example.com` / `adminpassword123`. Snap Chromium cannot spawn from inside node and
+     has a private `/tmp` — launch it yourself and write output under `$HOME`.
+
+   **Bug found in `~/car-next` while doing this (not fixed — it is not this repo):** the admin
+   dashboard crashes to a blank page with `TypeError: Cannot read properties of null (reading
+   'toFixed')` at `src/pages/admin/dashboard.tsx:712` in `DashboardCard`. The API is fine and
+   returns real aggregates (`totalRentals: 3, activeRentals: 1, totalRevenue: 6400,
+   availableCars: 7`) but also `percentChangeActiveRentals: null` when there is no prior period,
+   and the card calls `.toFixed()` on it unguarded. Any fresh install hits this. One-line guard.
+   Because of it there is no KPI-dashboard screenshot; the gallery uses the vehicle-detail and
+   vehicle-management pages, and the case-study copy credits the aggregation endpoints rather
+   than claiming a rendered dashboard.
 2. ~~**No Automation proof project**~~ — DONE 2026-07-30. Restored `~/social-ai-app` as
    `/work/social-command` (Social Command Center), tagged `cats: ["Automation", "AI"]`, so the
    `/work` Automation filter renders again and the Automations service card links to proof
@@ -106,10 +126,10 @@ handoff implemented 1:1:
 | cabarete-villas | production | cabaretevillas.com (200) | none |
 | ruleta | production | n/a (mobile app) | none |
 | moneyguard | mvp | n/a — beta group | `~/MoneyGuard` |
-| luxedrive | prototype | never deployed | `~/car-next` |
+| luxedrive | prototype | never deployed | `~/car-next` (dashboard crash — see backlog 1) |
 
-Home features `slice(0, 6)`, so LuxeDrive — the one project with no image — is the one that
-falls off the home grid. `/work` still shows all seven.
+Home features `slice(0, 6)`, so LuxeDrive falls off the home grid. `/work` shows all seven.
+Every project now has a card image, and `npm test` is fully green (8/8).
 
 **Do not use these repos for portfolio content** — `~/asset-insights-agent`, `~/coyote-ui`,
 `~/coyote-cms-api`, `~/coyote-managed-api`, `~/ui-component-library` are InvestorFlow /

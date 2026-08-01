@@ -33,6 +33,17 @@ export function ContactForm({ lang }: { lang: Lang }) {
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
   const canSend = emailValid && message.trim().length > 0 && state !== "sending";
 
+  /** GA4 enhanced measurement's own `form_start` is unreliable on a React form
+   *  whose submit is preventDefault'd, so the funnel step is explicit. Fires
+   *  once, on first interaction with any field — the gap between "expanded the
+   *  form" and "actually submitted" is where drop-off hides. */
+  const startedRef = React.useRef(false);
+  const noteStart = () => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+    trackEvent("contact_form_start", { mode: "contact" });
+  };
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canSend) return;
@@ -72,6 +83,9 @@ export function ContactForm({ lang }: { lang: Lang }) {
   return (
     <form
       onSubmit={submit}
+      // React's onFocus has focusin semantics (it bubbles), so one handler here
+      // covers all three fields.
+      onFocus={noteStart}
       style={{
         background: "var(--bg-surface)", border: "1px solid var(--border)",
         borderRadius: "var(--radius-lg)", padding: 24,

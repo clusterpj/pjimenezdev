@@ -25,6 +25,7 @@ export function useConciergeChat(mode: ConciergeMode, lang: Lang, greeting?: str
   const idleTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const currentPage = React.useRef<string>("");
   const startedRef = React.useRef(false);
+  const messageCount = React.useRef(0);
 
   React.useEffect(() => {
     currentPage.current = window.location.pathname;
@@ -46,6 +47,17 @@ export function useConciergeChat(mode: ConciergeMode, lang: Lang, greeting?: str
       startedRef.current = true;
       trackEvent("concierge_start", { mode, is_chip: isChip });
     }
+
+    // concierge_start only ever fires once per visitor, so it measures "touched
+    // the chat" and nothing else — a one-message bounce and a real scoping
+    // conversation look identical. This fires per message with its depth, which
+    // is the actual intent signal: message 3+ is someone describing a project.
+    messageCount.current += 1;
+    trackEvent("concierge_message_sent", {
+      mode,
+      message_index: messageCount.current,
+      is_chip: isChip,
+    });
 
     const history = [...messages, { role: "user" as const, content: q }].map((m) => ({
       role: m.role === "ai" ? ("assistant" as const) : ("user" as const),
@@ -177,7 +189,7 @@ export function ConciergeSurface({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ messages, email: addr, lang }),
         });
-        if (!res.ok) throw new Error(await res.json().then((d) => d.error).catch(() => "fail"));
+        if (!res.ok) throw new Error(await res.json().then((d) => (d as { error?: string }).error).catch(() => "fail"));
         setScope("sent");
       } catch {
         setScope("error");
@@ -197,7 +209,7 @@ export function ConciergeSurface({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages, email: email.trim(), lang }),
       });
-      if (!res.ok) throw new Error(await res.json().then((d) => d.error).catch(() => "fail"));
+      if (!res.ok) throw new Error(await res.json().then((d) => (d as { error?: string }).error).catch(() => "fail"));
       setScope("sent");
     } catch {
       setScope("error");

@@ -157,9 +157,11 @@ export default async function AboutPage(props: { params: Promise<{ lang: string 
               <span style={{ font: "600 clamp(16px,2.4vw,20px) var(--font-display), sans-serif", color: "var(--accent)" }}>{EMAIL}</span>
               <span style={{ font: "400 13px/1.5 var(--font-body), sans-serif", color: "var(--text-body)" }}>{a.emailDesc}</span>
             </a>
-            {/* Renders only once BOOKING_URL is set in content.ts. */}
+            {/* Renders only once BOOKING_URL is set in content.ts. data-lead makes
+                the delegated tracker in Analytics.tsx fire booking_click rather
+                than a generic outbound_click. */}
             {BOOKING_URL && (
-              <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer" style={{
+              <a href={BOOKING_URL} data-lead="booking" target="_blank" rel="noopener noreferrer" style={{
                 display: "flex", flexDirection: "column", gap: 6, background: "var(--bg-surface)",
                 border: "1px solid var(--border)", borderRadius: "var(--radius-lg)",
                 padding: 24, textDecoration: "none",

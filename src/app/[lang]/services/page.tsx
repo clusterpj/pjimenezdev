@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { EMAIL, SITE_URL, asLang, getDict, langPrefix } from "@/lib/content";
+import { SITE_URL, asLang, getDict, langPrefix } from "@/lib/content";
 import { Reveal } from "@/components/Reveal";
 
 export async function generateMetadata(props: { params: Promise<{ lang: string }> }): Promise<Metadata> {
@@ -148,7 +148,11 @@ export default async function ServicesPage(props: { params: Promise<{ lang: stri
               </div>
               <h3 style={{ font: "600 22px var(--font-display), sans-serif", color: "#fff", margin: "0 0 10px" }}>{m.title}</h3>
               <p style={{ font: "400 14px/1.65 var(--font-body), sans-serif", color: "var(--text-body)", margin: "0 0 20px", flex: 1 }}>{m.desc}</p>
-              <a className="cta-ghost" href={`mailto:${EMAIL}`} style={{ alignSelf: "flex-start" }}>{m.cta}</a>
+              {/* Was a bare mailto:. This page has no concierge and no form, so
+                  its terminal CTA was a dead end — mailto does nothing at all on
+                  a machine with no mail client, and average engagement here is
+                  11s. Send hiring intent to the surface that can capture it. */}
+              <Link className="cta-ghost" href={`${pre}/about#contact`} style={{ alignSelf: "flex-start" }}>{m.cta}</Link>
             </div>
           ))}
         </Reveal>

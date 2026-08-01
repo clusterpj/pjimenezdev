@@ -18,8 +18,35 @@ export const FACEBOOK_URL = "https://www.facebook.com/profile.php?id=61591124986
  *  so this is worth filling in. */
 export const BOOKING_URL = "";
 
+/** Cloudflare Web Analytics beacon token. Paste it and the beacon starts
+ *  reporting; leave it empty and nothing is injected.
+ *
+ *  Worth having alongside GA4 because it is server-adjacent and first-party:
+ *  ad-blockers drop gtag.js (a meaningful share of a developer audience), and
+ *  it reports real Core Web Vitals from actual visitors rather than lab numbers.
+ *
+ *  Cloudflare dashboard → Analytics & Logs → Web Analytics → Add a site →
+ *  pedrojimenez.dev → DISABLE automatic setup → copy the token here.
+ *  It cannot be done from the CLI: wrangler's OAuth token carries only
+ *  `account (read)` scope, with no RUM write permission. */
+export const CF_BEACON_TOKEN = "";
+
 /** URL prefix for a language: EN lives at /, ES at /es */
 export const langPrefix = (lang: Lang) => (lang === "en" ? "" : "/es");
+
+/** hreflang alternates for a page, given its unprefixed path ("" = home).
+ *
+ *  Includes `x-default`, which tells Google which URL to serve when none of the
+ *  declared languages matches the visitor's. Without it Google picks for you,
+ *  and for a two-language cluster it often serves the non-English variant to
+ *  neutral locales. Centralised because five pages declare these and they were
+ *  previously hand-written at each call site — exactly how the counts in this
+ *  file drifted out of sync before. */
+export const hreflangAlternates = (path: string) => ({
+  en: path || "/",
+  es: `/es${path}`,
+  "x-default": path || "/",
+});
 
 export interface Project {
   id: string;

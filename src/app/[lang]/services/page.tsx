@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { SITE_URL, asLang, getDict, langPrefix } from "@/lib/content";
+import { hreflangAlternates, SITE_URL, asLang, getDict, langPrefix } from "@/lib/content";
 import { Reveal } from "@/components/Reveal";
 
 export async function generateMetadata(props: { params: Promise<{ lang: string }> }): Promise<Metadata> {
@@ -9,7 +9,7 @@ export async function generateMetadata(props: { params: Promise<{ lang: string }
   return {
     title: t.metaTitle,
     description: t.metaDesc,
-    alternates: { canonical: `${langPrefix(lang)}/services`, languages: { en: "/services", es: "/es/services" } },
+    alternates: { canonical: `${langPrefix(lang)}/services`, languages: hreflangAlternates("/services") },
     openGraph: {
       type: "website", title: t.metaTitle, description: t.metaDesc,
       url: `${SITE_URL}${langPrefix(lang)}/services`,

@@ -5,7 +5,7 @@ import { Nav } from "@/components/layout/Nav";
 import { Footer } from "@/components/layout/Footer";
 import { PageTracker } from "@/components/PageTracker";
 import { Analytics } from "@/components/Analytics";
-import { SITE_URL, asLang, langs } from "@/lib/content";
+import { CF_BEACON_TOKEN, SITE_URL, asLang, langs } from "@/lib/content";
 
 // Self-hosted by next/font at build time — subsetted WOFF2, no Google request at
 // runtime. latin-ext is required for the ES copy (á é í ó ú ñ ü).
@@ -65,6 +65,15 @@ export default async function RootLayout(props: {
         <Nav />
         <main style={{ flexGrow: 1 }}>{children}</main>
         <Footer lang={lang} />
+        {/* Cloudflare Web Analytics — renders only once CF_BEACON_TOKEN is set.
+            Deferred and last in the body so it never competes with content. */}
+        {CF_BEACON_TOKEN && (
+          <script
+            defer
+            src="https://static.cloudflareinsights.com/beacon.min.js"
+            data-cf-beacon={JSON.stringify({ token: CF_BEACON_TOKEN })}
+          />
+        )}
       </body>
     </html>
   );

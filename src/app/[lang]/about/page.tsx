@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { BOOKING_URL, EMAIL, FACEBOOK_URL, GITHUB_URL, LINKEDIN_URL, SITE_URL, asLang, getDict, langPrefix } from "@/lib/content";
+import { hreflangAlternates, BOOKING_URL, EMAIL, FACEBOOK_URL, GITHUB_URL, LINKEDIN_URL, SITE_URL, asLang, getDict, langPrefix } from "@/lib/content";
 import { ContactConcierge } from "@/components/ai/ContactConcierge";
 import { ContactForm } from "@/components/ai/ContactForm";
 
@@ -9,7 +9,7 @@ export async function generateMetadata(props: { params: Promise<{ lang: string }
   return {
     title: t.metaTitle,
     description: t.metaDesc,
-    alternates: { canonical: `${langPrefix(lang)}/about`, languages: { en: "/about", es: "/es/about" } },
+    alternates: { canonical: `${langPrefix(lang)}/about`, languages: hreflangAlternates("/about") },
     openGraph: {
       type: "profile", title: t.metaTitle, description: t.metaDesc,
       url: `${SITE_URL}${langPrefix(lang)}/about`,

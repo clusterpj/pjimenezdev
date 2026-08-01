@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { EMAIL, SITE_URL, asLang, getDict, getProject, langPrefix, langs, projects } from "@/lib/content";
+import { hreflangAlternates, SITE_URL, asLang, getDict, getProject, langPrefix, langs, projects } from "@/lib/content";
 
 export function generateStaticParams() {
   return langs.flatMap((lang) => projects[lang].map((p) => ({ lang, slug: p.id })));
@@ -22,7 +22,7 @@ export async function generateMetadata(props: { params: Promise<{ lang: string; 
     description,
     alternates: {
       canonical: `${langPrefix(lang)}/work/${p.id}`,
-      languages: { en: `/work/${p.id}`, es: `/es/work/${p.id}` },
+      languages: hreflangAlternates(`/work/${p.id}`),
     },
     openGraph: {
       type: "article", title, description,
@@ -59,15 +59,31 @@ export default async function CaseStudy(props: { params: Promise<{ lang: string;
   const t = getDict(lang).caseStudy;
   const pre = langPrefix(lang);
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "CreativeWork",
-    name: p.name,
-    description: p.desc,
-    url: `${SITE_URL}${pre}/work/${p.id}`,
-    dateCreated: p.year,
-    creator: { "@type": "Person", name: "Pedro Jimenez", url: `${SITE_URL}/` },
-  };
+  // Two graphs: the work itself, plus a breadcrumb trail. Google renders
+  // BreadcrumbList as the path under the result title instead of a bare URL,
+  // which is a measurable CTR difference on deep pages like these.
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "CreativeWork",
+      name: p.name,
+      description: p.metaDesc ?? p.desc,
+      url: `${SITE_URL}${pre}/work/${p.id}`,
+      dateCreated: p.year,
+      inLanguage: lang,
+      keywords: p.tags.join(", "),
+      creator: { "@type": "Person", name: "Pedro Jimenez", url: `${SITE_URL}/` },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Pedro Jimenez", item: `${SITE_URL}${pre}/` },
+        { "@type": "ListItem", position: 2, name: t.allWork, item: `${SITE_URL}${pre}/work` },
+        { "@type": "ListItem", position: 3, name: p.name },
+      ],
+    },
+  ];
 
   return (
     <>
@@ -216,9 +232,14 @@ export default async function CaseStudy(props: { params: Promise<{ lang: string;
                 <p style={{ font: "400 14px/1.6 var(--font-body), sans-serif", color: "var(--text-body)", margin: "0 0 16px" }}>
                   {t.scopeIt(p.name)}
                 </p>
-                <a className="cta-solid" href={`mailto:${EMAIL}`} style={{ width: "100%", justifyContent: "center", padding: 12 }}>
+                {/* Case studies hold visitors for minutes — by far the highest
+                    intent on the site — and this was a bare mailto:. The copy
+                    right above literally offers to scope the project, and the
+                    site has a scoping concierge, so send them to it rather than
+                    to a mail client that may not even be configured. */}
+                <Link className="cta-solid" href={`${pre}/about#contact`} style={{ width: "100%", justifyContent: "center", padding: 12 }}>
                   {t.startProject}
-                </a>
+                </Link>
               </div>
             </div>
           </aside>

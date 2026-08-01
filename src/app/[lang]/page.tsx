@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { EMAIL, SITE_URL, GITHUB_URL, LINKEDIN_URL, FACEBOOK_URL, asLang, getDict, langPrefix, projects } from "@/lib/content";
+import { hreflangAlternates, EMAIL, SITE_URL, GITHUB_URL, LINKEDIN_URL, FACEBOOK_URL, asLang, getDict, langPrefix, projects } from "@/lib/content";
 import { HomeHero, AskSiteButton } from "@/components/sections/HomeHero";
 import { Reveal } from "@/components/Reveal";
 
@@ -11,7 +11,7 @@ export async function generateMetadata(props: { params: Promise<{ lang: string }
   return {
     title: t.metaTitle,
     description: t.metaDesc,
-    alternates: { canonical: path, languages: { en: "/", es: "/es" } },
+    alternates: { canonical: path, languages: hreflangAlternates("") },
     openGraph: {
       type: "website",
       title: t.metaTitle,
@@ -92,7 +92,9 @@ export default async function Home(props: { params: Promise<{ lang: string }> })
                 // eslint-disable-next-line @next/next/no-img-element -- external client-site photo, no optimizer on Workers
                 <img
                   src={p.image}
-                  alt=""
+                  // Was alt="" — decorative — on a card's primary content image,
+                  // which hides it from image search and screen readers alike.
+                  alt={`${p.name} — ${p.category}`}
                   loading="lazy"
                   referrerPolicy="no-referrer"
                   style={{ width: "100%", aspectRatio: "16/10", objectFit: "cover", display: "block", borderBottom: "1px solid var(--border)" }}

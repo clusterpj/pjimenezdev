@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { EMAIL, SITE_URL, asLang, getDict, langPrefix } from "@/lib/content";
+import { hreflangAlternates, EMAIL, SITE_URL, asLang, getDict, langPrefix } from "@/lib/content";
 import { WorkGrid } from "@/components/sections/WorkGrid";
 import { Reveal } from "@/components/Reveal";
 
@@ -10,7 +10,7 @@ export async function generateMetadata(props: { params: Promise<{ lang: string }
   return {
     title: t.metaTitle,
     description: t.metaDesc,
-    alternates: { canonical: `${langPrefix(lang)}/work`, languages: { en: "/work", es: "/es/work" } },
+    alternates: { canonical: `${langPrefix(lang)}/work`, languages: hreflangAlternates("/work") },
     openGraph: {
       type: "website", title: t.metaTitle, description: t.metaDesc,
       url: `${SITE_URL}${langPrefix(lang)}/work`,
@@ -75,8 +75,11 @@ export default async function WorkPage(props: { params: Promise<{ lang: string }
               {t.ctaSub}
             </p>
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
-              <a className="cta-solid" href={`mailto:${EMAIL}`} style={{ padding: "14px 26px", fontSize: 16 }}>{EMAIL}</a>
-              <Link className="cta-ghost" href={pre || "/"}>{t.ctaAsk}</Link>
+              {/* Primary action is now the scoping surface, not a mail client.
+                  The email stays as the secondary route for people who prefer it
+                  — and it's tracked as email_click either way. */}
+              <Link className="cta-solid" href={`${pre}/about#contact`} style={{ padding: "14px 26px", fontSize: 16 }}>{t.ctaAsk}</Link>
+              <a className="cta-ghost" href={`mailto:${EMAIL}`} style={{ padding: "14px 26px", fontSize: 16 }}>{EMAIL}</a>
             </div>
           </div>
         </Reveal>

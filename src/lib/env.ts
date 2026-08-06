@@ -12,7 +12,7 @@ export function getEnv(key: string): string | undefined {
   try {
     const ctx = getCloudflareContext();
     if (ctx && ctx.env) {
-      const val = (ctx.env as Record<string, string | undefined>)[key];
+      const val = (ctx.env as unknown as Record<string, string | undefined>)[key];
       if (val) return val;
     }
   } catch {

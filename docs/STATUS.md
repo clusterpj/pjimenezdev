@@ -3,6 +3,82 @@
 Last updated: 2026-07-31. This is the pick-up-where-we-left-off doc.
 Architecture and conventions live in `CLAUDE.md`; this file tracks state and pending work.
 
+## ⇢ GROWTH ENGINE — LIVE since 2026-07-31 (version `3fc85015`)
+
+Lead capture used to end at Pedro's inbox. It now writes to D1 and three cron
+jobs work the pipeline. Proven end to end in production on 2026-07-31: draft →
+approval email → Pedro clicked **Publish it** → note live at
+`/notes/eliminate-double-bookings-ical`, IndexNow pinged, Facebook post
+confirmed `published` by Zernio.
+
+| Piece | Where |
+|---|---|
+| Jobs (follow-ups, drafting, publishing, IndexNow) | `src/lib/growth.ts` |
+| Cron entry (self-fetches `/api/cron`) | `custom-worker.ts` → `wrangler.toml [triggers]` |
+| Cron endpoint, `x-cron-key` header | `src/app/api/cron/route.ts` |
+| One-click approve/reject/stop, HMAC in the URL | `src/app/api/act/route.ts` |
+| Notes rendered from D1 | `src/app/[lang]/notes/` + `src/lib/markdown.ts` |
+| Schema | `schema.sql` (applied to remote + local) |
+
+**Schedule** (UTC; AST is UTC-4 year round): `0 13 * * *` follow-ups ·
+`0 14 * * *` content · `20 * * * *` publish. Three triggers is the cap worth
+designing to (Cloudflare documents 3–5 depending on whether it counts per Worker
+or per account), so the content cron is one daily job that dispatches by weekday
+in `runContent()` rather than one cron per content type.
+
+**Cadence — 6 social drops a week, 2 new pages a week.** Mon/Thu the content job
+writes a *note* (a real indexable page). Tue/Wed/Fri/Sat it writes a *promo*:
+social copy only, pointing at a page that already exists — a case study, an
+older note, /services or /work. Sunday off.
+
+Notes and promos are deliberately on different clocks. A new indexable page
+every day, drawn from the same seven projects, is thin repetitive content and
+is what Google's helpful-content systems demote; social volume carries no such
+penalty because a promo reuses a page instead of minting a weak new one. Raise
+the promo days freely. Think hard before raising the note days.
+
+Promos live in the same `posts` table with a **NULL slug and empty body** —
+that is what keeps them off `/notes` and out of the sitemap while still riding
+the same approve → publish → Zernio path. `publishedPosts()` and
+`publishedPost()` both filter on it; so does the IndexNow ping, which only fires
+for rows that actually have a page.
+
+**Flow.** A lead hits `/api/scope` → row in `leads` (written *before* Resend, so
+an email outage can't lose it) → notification email as before, now with a
+"stop automatic follow-ups" link. Any lead still `new`/`nudged` after 3 days
+gets an LLM-drafted nudge in Pedro's voice, BCC'd to Pedro, max 2, then `cold`.
+The content job emails every draft with **Publish it / Bin it** buttons and
+nothing goes out unclicked. Approved rows publish hourly: a note goes live at
+`/notes/{slug}` and gets an IndexNow ping; a promo skips both. Either way Zernio
+cross-posts to LinkedIn, X, Facebook and Instagram with a link back.
+
+**Still to do (needs Pedro):**
+1. **Only Facebook is connected at Zernio.** LinkedIn, X and Instagram are not,
+   so `publish` writes their copy and silently skips them. Connect them in the
+   Zernio dashboard — the code already posts to all four in `PLATFORMS`. The
+   free tier covers 2 accounts; four means a paid plan.
+2. **Submit `https://pedrojimenez.dev/sitemap.xml` in Google Search Console.**
+   Nothing in this engine replaces that one manual step — IndexNow covers
+   Bing/Yandex, Google does not consume it.
+3. Consider rotating the Zernio key: it was briefly stored as a *secret name*
+   rather than a value, so it sat in plaintext in the secret listing.
+
+**Operate:**
+- Manual run: `curl -H "x-cron-key: $GROWTH_SECRET" 'https://pedrojimenez.dev/api/cron?job=publish'`
+  Jobs: `followups`, `content` (what the cron calls), `draft` and `promote`
+  (force one type now), `publish`. A 404 means the secret is wrong.
+- After a deploy, new jobs can 400 as `Unknown job` for ~a minute while the edge
+  propagates. Retest before debugging.
+- Watch a run: `npx wrangler tail --format json`.
+- `GROWTH_SECRET` is in `.dev.vars` and as a Worker secret.
+
+**Deliberately not built:** automated backlink acquisition. It is a link scheme;
+Google penalizes it. The ranking play here is real pages plus syndication.
+
+**Known gaps:** a lead is only marked `replied` when Pedro clicks the stop link —
+there is no inbound-email parsing, so an unclicked lead keeps getting its 2
+nudges. Notes are English-only. There is no admin UI; the inbox is the UI.
+
 ## ⇢ PICK UP HERE — open after the 2026-07-30 deploy
 
 The site is deployed and healthy (version `44ec315c`, all routes 200 in EN + ES,

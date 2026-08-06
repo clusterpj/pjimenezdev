@@ -21,9 +21,13 @@ npm run build:cf     # build Worker + assets bundle
 npm run preview:cf   # build + preview in workerd runtime (127.0.0.1:8787)
 npm run deploy       # build + deploy to Cloudflare Workers
 npm run cf-typegen   # regenerate cloudflare-env.d.ts from wrangler bindings
+npm test             # node:test — content integrity + the markdown renderer
+
+# D1 (growth engine)
+npx wrangler d1 execute pjimenezdev --remote --file=schema.sql
 ```
 
-No test suite yet — add Vitest when unit tests are needed.
+Tests are plain `node:test`, no framework — `src/lib/**/*.test.ts`.
 
 See `README.md` for the full deployment flow (login, secrets, custom domain).
 
@@ -32,8 +36,9 @@ See `README.md` for the full deployment flow (login, secrets, custom domain).
 - **Next.js 15 (App Router)** — React 19, Cloudflare-compatible
 - **Tailwind CSS v4** — PostCSS-based (no `tailwind.config.js`)
 - **Framer Motion** — all animations (installed)
-- **MDX** — blog content (to be installed)
-- **Cloudflare Workers** — deployment via `@opennextjs/cloudflare` (OpenNext); static assets served through the `ASSETS` binding, Worker entry at `.open-next/worker.js` (see `wrangler.toml`)
+- **Cloudflare D1** — leads + drafted/published notes (`DB` binding, `schema.sql`)
+- **Zernio** — one API for cross-posting to LinkedIn/X/Facebook/Instagram
+- **Cloudflare Workers** — deployment via `@opennextjs/cloudflare` (OpenNext); static assets served through the `ASSETS` binding, Worker entry is `custom-worker.ts`, which re-exports the generated `.open-next/worker.js` fetch handler and adds the cron `scheduled()` handler (see `wrangler.toml`)
 - **Anthropic Claude API** — Concierge + Estimator (server-side only, via Workers)
 - **Cloudflare Workers AI + Vectorize** — edge inference + embeddings for personalization
 - **Three.js / WebGL** — reactive hero (loads post-TTI, never in critical path)
@@ -53,8 +58,11 @@ src/
       work/[slug]/page.tsx  # case study (data-driven from lib/content.ts)
       services/page.tsx
       about/page.tsx        # bio + #contact (scoping concierge + email card)
+      notes/                # D1-backed notes (EN only, force-dynamic) — growth engine's SEO surface
     api/concierge/route.ts  # streaming chat, system prompts built from lib/content.ts
-    sitemap.ts / robots.ts  # built-in Next metadata routes
+    api/cron/route.ts       # growth cron entry (x-cron-key); jobs live in lib/growth.ts
+    api/act/route.ts        # HMAC one-click links: approve/reject a draft, stop follow-ups
+    sitemap.ts / robots.ts  # built-in Next metadata routes (sitemap is dynamic — reads D1)
   components/
     ai/ConciergeSurface.tsx # useConciergeChat hook + chat surface (home + contact modes)
     ai/ContactConcierge.tsx
@@ -63,6 +71,8 @@ src/
     Reveal.tsx              # IntersectionObserver scroll reveals
   lib/
     content.ts              # ALL site copy + 8 projects, EN + ES — single source of truth
+    growth.ts               # leads in D1, follow-up/content/publish crons, Zernio, IndexNow
+    markdown.ts             # ~20-line markdown subset for notes (escape-first; tested)
     ai/                     # provider abstraction (DeepSeek, streaming)
 ```
 
@@ -133,7 +143,17 @@ Every interactive component needs four states: **Default → Listening (`--ai-li
 
 ## Routes & Sections
 
-Routes: `/` (hero concierge → work → services → about teaser → contact CTA), `/work`, `/work/[slug]`, `/services`, `/about` (+`#contact`). No blog, no separate contact page — contact lives on About.
+Routes: `/` (hero concierge → work → services → about teaser → contact CTA), `/work`, `/work/[slug]`, `/services`, `/about` (+`#contact`), `/notes` + `/notes/[slug]`. No separate contact page — contact lives on About.
+
+`/notes` is not a blog in the hand-authored sense and is not part of the locked
+design handoff: it is the indexable surface for the growth engine. Posts are
+drafted by cron, approved by Pedro from his inbox, and stored in D1 — English
+only, no MDX, no build step.
+
+Two kinds of row live in `posts`: **notes** (a real page at `/notes/{slug}`) and
+**promos** (social copy only, NULL slug + empty body, pointing at a page that
+already exists). Anything that surfaces notes — `/notes`, the sitemap, the
+IndexNow ping — must filter promos out. See `docs/STATUS.md` → GROWTH ENGINE.
 
 AI surface: the **concierge** — inline chat surfaces (home hero + about contact), NOT a chat bubble or overlay. Knows all projects, availability, pricing stance; Pedro's voice (casual, direct, technical); replies in the visitor's language. States: idle → processing (3 bouncing dots, never a spinner) → responding, driven by violet-family colors only.
 

@@ -1,6 +1,8 @@
 "$schema" = "./node_modules/wrangler/config-schema.json"
 name = "pjimenezdev"
-main = ".open-next/worker.js"
+# Custom entry: re-exports the generated OpenNext fetch handler and adds the
+# scheduled handler for the growth crons. See custom-worker.ts.
+main = "custom-worker.ts"
 compatibility_date = "2025-06-25"
 compatibility_flags = ["nodejs_compat"]
 
@@ -13,6 +15,22 @@ enabled = true
 
 [vars]
 AI_PROVIDER = "deepseek"
+# Public by design — the key file at /<key>.txt is what proves ownership.
+INDEXNOW_KEY = "94b9a7be1267b501175f082ff1ef4b43"
+
+# Growth engine: leads + the content pipeline. Schema in schema.sql.
+[[d1_databases]]
+binding = "DB"
+database_name = "pjimenezdev"
+database_id = "71c08285-c6b1-4138-ba7f-94867c5ecc49"
+
+# Times are UTC. AST is UTC-4 year round (no DST in the DR).
+[triggers]
+crons = [
+  "0 13 * * *",  # 09:00 AST daily — follow up on quiet leads
+  "0 14 * * *",  # 10:00 AST daily — note on Mon/Thu, promo Tue/Wed/Fri/Sat, Sun off
+  "20 * * * *",  # hourly — publish whatever Pedro approved
+]
 
 # Per-IP limit shared by /api/concierge and /api/scope (LLM + email calls).
 # Uses the sub-table form from the Cloudflare docs rather than an inline table.

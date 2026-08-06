@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { EMAIL } from "@/lib/content";
+import { saveLead, stopLink } from "@/lib/growth";
 import { getProvider } from "@/lib/ai";
 import { rateLimited } from "@/lib/rate-limit";
 import { getEnv } from "@/lib/env";
@@ -94,6 +95,20 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       };
     }
 
+    // Stored before the notification goes out: a Resend outage should cost a
+    // notification, never the lead. This row is what the follow-up cron works
+    // from — until it existed, every lead lived only in Pedro's inbox.
+    const leadId = await saveLead({
+      email,
+      name,
+      lang,
+      source,
+      headline: summary.headline,
+      summary,
+      transcript: convoText,
+    });
+    const stopHref = leadId ? await stopLink(leadId) : "";
+
     const subject =
       lang === "es"
         ? `Nuevo proyecto — ${email}`
@@ -136,6 +151,7 @@ ${field(isEs ? "Notas técnicas" : "Tech notes", summary.techNotes)}
   ${name.trim() ? `<div style="font:600 16px system-ui,sans-serif;color:#fff;margin-bottom:2px">${esc(name)}</div>` : ""}
   <div style="font:600 16px system-ui,sans-serif;color:#FFB23E">${esc(email)}</div>
   <p style="color:#7A7A88;font-size:13px;margin:8px 0 0">${isEs ? `Responde directo — el cliente está en copia.` : `Reply directly — the client is CC'd on this email.`}</p>
+  ${stopHref ? `<p style="margin:14px 0 0"><a href="${stopHref}" style="color:#7A7A88;font:400 12px monospace;letter-spacing:.04em">${isEs ? "⏹ Detener seguimientos automáticos" : "⏹ Stop automatic follow-ups"}</a></p>` : ""}
 </div>
 
 </div>

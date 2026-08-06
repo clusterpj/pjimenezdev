@@ -14,14 +14,17 @@ function getKey(): string {
 }
 
 export class DeepSeekProvider implements AIProvider {
-  async chat(messages: ChatMessage[]): Promise<string> {
+  async chat(messages: ChatMessage[], maxTokens = 500, reasoningEffort?: 'low' | 'medium' | 'high'): Promise<string> {
     const res = await fetch(ENDPOINT, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${getKey()}`,
       },
-      body: JSON.stringify({ model: getModel(), messages, stream: false, max_tokens: 500 }),
+      body: JSON.stringify({
+        model: getModel(), messages, stream: false, max_tokens: maxTokens,
+        ...(reasoningEffort ? { reasoning_effort: reasoningEffort } : {}),
+      }),
     });
 
     if (!res.ok) {
@@ -93,7 +96,7 @@ export class DeepSeekProvider implements AIProvider {
     });
   }
 
-  async structured<T>(messages: ChatMessage[], hint: string): Promise<T> {
+  async structured<T>(messages: ChatMessage[], hint: string, maxTokens = 500): Promise<T> {
     const withHint: ChatMessage[] = [
       {
         role: 'system',
@@ -105,8 +108,19 @@ ${hint}`,
       ...messages.filter(m => m.role !== 'system'),
     ];
 
-    const raw = await this.chat(withHint);
+    // max_tokens covers reasoning tokens too, and this model happily spends
+    // 7k of an 8k budget thinking — which truncates the JSON mid-string. Low
+    // effort keeps the budget for the answer.
+    const raw = await this.chat(withHint, maxTokens, 'low');
     const cleaned = raw.replace(/^```(?:json)?\n?/i, '').replace(/```$/i, '').trim();
-    return JSON.parse(cleaned) as T;
+    try {
+      return JSON.parse(cleaned) as T;
+    } catch {
+      // Almost always a truncated body rather than malformed syntax. Say so,
+      // and show the tail — "Unexpected end of JSON input" alone told us nothing.
+      throw new Error(
+        `DeepSeek returned unparseable JSON (${cleaned.length} chars, max_tokens ${maxTokens}). Tail: ${JSON.stringify(cleaned.slice(-120))}`,
+      );
+    }
   }
 }

@@ -24,8 +24,14 @@ export function Footer({ lang }: { lang: Lang }) {
           <Link className="navlink" href={`${pre}/work`}>{t.nav.work}</Link>
           <Link className="navlink" href={`${pre}/services`}>{t.nav.services}</Link>
           <Link className="navlink" href={`${pre}/about`}>{t.nav.about}</Link>
+          {/* Notes are English-only, so the link only exists on the English side.
+              It's here for the crawler as much as the reader — a note nobody
+              links to is a note nobody indexes. */}
+          {lang === "en" && <Link className="navlink" href="/notes">Notes</Link>}
           <a className="navlink" href={`mailto:${EMAIL}`}>{t.footer.email}</a>
-          <a className="navlink" href={GITHUB_URL}>{t.footer.github}</a>
+          {/* Opened in the same tab, this quietly sent visitors off-site with no
+              way back. */}
+          <a className="navlink" href={GITHUB_URL} target="_blank" rel="noopener noreferrer">{t.footer.github}</a>
           <span style={{ width: 1, height: 18, background: "var(--border)", margin: "0 6px" }} />
           <Link className="navlink" href={langPrefix(other) || "/"} style={{ fontFamily: "var(--font-mono)", fontSize: 12, textTransform: "uppercase", letterSpacing: ".06em" }}>
             {other}

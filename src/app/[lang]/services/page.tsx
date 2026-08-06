@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { hreflangAlternates, SITE_URL, asLang, getDict, langPrefix } from "@/lib/content";
+import { breadcrumbs, hreflangAlternates, SITE_URL, asLang, getDict, langPrefix } from "@/lib/content";
 import { Reveal } from "@/components/Reveal";
 
 export async function generateMetadata(props: { params: Promise<{ lang: string }> }): Promise<Metadata> {
@@ -31,19 +31,44 @@ const toolTag: React.CSSProperties = {
 
 export default async function ServicesPage(props: { params: Promise<{ lang: string }> }) {
   const lang = asLang((await props.params).lang);
-  const t = getDict(lang).services;
+  const d = getDict(lang);
+  const t = d.services;
   const pre = langPrefix(lang);
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    provider: { "@type": "Person", name: "Pedro Jimenez", url: `${SITE_URL}/` },
-    serviceType: [
-      "AI integration", "Automation", "Web application development",
-      "Mobile application development", "SaaS development", "3D and motion design",
-    ],
-    areaServed: "Worldwide",
-  };
+  // serviceType was a bare string list with no descriptions and no link between
+  // a service and the work that proves it. hasOfferCatalog enumerates the real
+  // six from content.ts, so the offering can't drift from the page.
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      name: t.metaTitle,
+      description: t.metaDesc,
+      url: `${SITE_URL}${pre}/services`,
+      inLanguage: lang,
+      provider: {
+        "@type": "Person",
+        name: "Pedro Jimenez",
+        url: `${SITE_URL}/`,
+        image: `${SITE_URL}/images/pedro/portrait.webp`,
+      },
+      areaServed: "Worldwide",
+      serviceType: t.cards.map((c) => c.title),
+      hasOfferCatalog: {
+        "@type": "OfferCatalog",
+        name: t.metaTitle,
+        itemListElement: t.cards.map((c) => ({
+          "@type": "Offer",
+          itemOffered: {
+            "@type": "Service",
+            name: c.title,
+            description: c.desc,
+          },
+        })),
+      },
+    },
+    breadcrumbs(lang, [{ name: d.nav.services }]),
+  ];
 
   return (
     <>

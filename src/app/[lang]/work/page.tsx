@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { hreflangAlternates, EMAIL, SITE_URL, asLang, getDict, langPrefix } from "@/lib/content";
+import { breadcrumbs, hreflangAlternates, EMAIL, SITE_URL, asLang, getDict, langPrefix, projects } from "@/lib/content";
 import { WorkGrid } from "@/components/sections/WorkGrid";
 import { Reveal } from "@/components/Reveal";
 
@@ -21,16 +21,35 @@ export async function generateMetadata(props: { params: Promise<{ lang: string }
 
 export default async function WorkPage(props: { params: Promise<{ lang: string }> }) {
   const lang = asLang((await props.params).lang);
-  const t = getDict(lang).work;
+  const d = getDict(lang);
+  const t = d.work;
   const pre = langPrefix(lang);
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    name: `Work — Pedro Jimenez`,
-    url: `${SITE_URL}${pre}/work`,
-    about: { "@type": "Person", name: "Pedro Jimenez", url: `${SITE_URL}/` },
-  };
+  // CollectionPage named the page but never listed what it collects, so the
+  // portfolio was opaque to a crawler. mainEntity enumerates the projects with
+  // their real URLs; breadcrumbs give the SERP a path instead of a bare URL.
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: t.metaTitle,
+      description: t.metaDesc,
+      url: `${SITE_URL}${pre}/work`,
+      inLanguage: lang,
+      about: { "@type": "Person", name: "Pedro Jimenez", url: `${SITE_URL}/` },
+      mainEntity: {
+        "@type": "ItemList",
+        numberOfItems: projects[lang].length,
+        itemListElement: projects[lang].map((p, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          name: p.name,
+          url: `${SITE_URL}${pre}/work/${p.id}`,
+        })),
+      },
+    },
+    breadcrumbs(lang, [{ name: d.nav.work }]),
+  ];
 
   return (
     <>

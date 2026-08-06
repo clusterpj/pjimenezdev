@@ -48,6 +48,34 @@ export const hreflangAlternates = (path: string) => ({
   "x-default": path || "/",
 });
 
+/** A schema.org BreadcrumbList for a page.
+ *
+ *  Google renders these as the path under a result title instead of a bare URL,
+ *  which measurably helps click-through on deep pages. Pass the trail after the
+ *  site root; the root itself is prepended. A trailing entry with no `path` is
+ *  the current page, which per Google's guidance carries no `item`.
+ *
+ *  Centralised so the four pages that declare breadcrumbs can't drift apart. */
+export const breadcrumbs = (
+  lang: Lang,
+  trail: { name: string; path?: string }[],
+) => {
+  const pre = langPrefix(lang);
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { name: "Pedro Jimenez", path: "" },
+      ...trail,
+    ].map((c, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: c.name,
+      ...(c.path === undefined ? {} : { item: `${SITE_URL}${pre}${c.path || "/"}` }),
+    })),
+  };
+};
+
 export interface Project {
   id: string;
   name: string;

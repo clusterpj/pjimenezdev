@@ -51,6 +51,10 @@ export default async function Home(props: { params: Promise<{ lang: string }> })
     name: "Pedro Jimenez",
     jobTitle: "Full-stack & AI Developer",
     url: `${SITE_URL}/`,
+    // `image` was missing. Google uses it to tie the entity to a face, which is
+    // what makes a knowledge-panel style result possible for a personal brand.
+    image: `${SITE_URL}/images/pedro/portrait.webp`,
+    description: t.home.metaDesc,
     address: { "@type": "PostalAddress", addressLocality: "Santiago", addressCountry: "DO" },
     knowsLanguage: ["en", "es"],
     knowsAbout: ["AI integrations", "Automation", "Web development", "Mobile development", "3D & motion"],

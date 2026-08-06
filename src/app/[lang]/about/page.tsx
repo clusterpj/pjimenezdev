@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { hreflangAlternates, BOOKING_URL, EMAIL, FACEBOOK_URL, GITHUB_URL, LINKEDIN_URL, SITE_URL, asLang, getDict, langPrefix } from "@/lib/content";
+import { breadcrumbs, hreflangAlternates, BOOKING_URL, EMAIL, FACEBOOK_URL, GITHUB_URL, LINKEDIN_URL, SITE_URL, asLang, getDict, langPrefix } from "@/lib/content";
 import { ContactConcierge } from "@/components/ai/ContactConcierge";
 import { ContactForm } from "@/components/ai/ContactForm";
 
@@ -33,19 +33,28 @@ export default async function AboutPage(props: { params: Promise<{ lang: string 
   const t = getDict(lang);
   const a = t.about;
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "ProfilePage",
-    mainEntity: {
-      "@type": "Person",
-      name: "Pedro Jimenez",
-      jobTitle: "Full-stack & AI Developer",
-      url: `${SITE_URL}/`,
-      address: { "@type": "PostalAddress", addressLocality: "Santiago", addressCountry: "DO" },
-      knowsLanguage: ["en", "es"],
-      email: EMAIL,
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "ProfilePage",
+      url: `${SITE_URL}${langPrefix(lang)}/about`,
+      inLanguage: lang,
+      mainEntity: {
+        "@type": "Person",
+        name: "Pedro Jimenez",
+        jobTitle: "Full-stack & AI Developer",
+        url: `${SITE_URL}/`,
+        // Same reason as the home page: no image meant no entity-to-face link.
+        image: `${SITE_URL}/images/pedro/portrait.webp`,
+        description: a.metaDesc,
+        address: { "@type": "PostalAddress", addressLocality: "Santiago", addressCountry: "DO" },
+        knowsLanguage: ["en", "es"],
+        email: EMAIL,
+        sameAs: [GITHUB_URL, LINKEDIN_URL, FACEBOOK_URL],
+      },
     },
-  };
+    breadcrumbs(lang, [{ name: t.nav.about }]),
+  ];
 
   return (
     <>

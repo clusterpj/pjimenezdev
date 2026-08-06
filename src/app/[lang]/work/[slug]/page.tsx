@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { hreflangAlternates, SITE_URL, asLang, getDict, getProject, langPrefix, langs, projects } from "@/lib/content";
+import { breadcrumbs, hreflangAlternates, SITE_URL, asLang, getDict, getProject, langPrefix, langs, projects } from "@/lib/content";
 
 export function generateStaticParams() {
   return langs.flatMap((lang) => projects[lang].map((p) => ({ lang, slug: p.id })));
@@ -74,15 +74,7 @@ export default async function CaseStudy(props: { params: Promise<{ lang: string;
       keywords: p.tags.join(", "),
       creator: { "@type": "Person", name: "Pedro Jimenez", url: `${SITE_URL}/` },
     },
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Pedro Jimenez", item: `${SITE_URL}${pre}/` },
-        { "@type": "ListItem", position: 2, name: t.allWork, item: `${SITE_URL}${pre}/work` },
-        { "@type": "ListItem", position: 3, name: p.name },
-      ],
-    },
+    breadcrumbs(lang, [{ name: t.allWork, path: "/work" }, { name: p.name }]),
   ];
 
   return (
